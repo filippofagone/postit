@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.netlify.post_it_e_beauty_tech.twa",
+        "sha256_cert_fingerprints": ["45:67:E2:B4:32:0C:1D:C9:65:82:08:A2:E1:61:13:3B:37:AD:F5:B1:B7:1D:84:C1:D7:89:C9:53:44:CF:38:AB"]
+      }
+    }]

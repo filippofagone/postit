@@ -1,0 +1,35 @@
+POST-IT — GUIDA RAPIDA APK (tienila nel pacchetto)
+
+PRIMA DI TUTTO
+1. Trascina questa cartella su Netlify (tab Deploys del tuo sito).
+2. Apri il link https://...netlify.app da Chrome Android: deve comparire "Installa app".
+
+SU PWABUILDER.COM
+3. Incolla il link Netlify -> Start -> Package for stores -> Android.
+4. Valori consigliati nelle opzioni:
+   - Package ID:  it.ebeautygroup.postit
+   - App name:    Post-It
+   - Launcher name: Post-It
+   - Version:     1.0.0
+   - Signing key: "Create new" (PWABuilder la genera per te)
+   - Tutto il resto: lascia i valori di default
+5. Scarica il pacchetto e CONSERVA la chiave di firma con le sue password:
+   serve identica per ogni aggiornamento futuro.
+
+DOPO IL DOWNLOAD
+6. Nel pacchetto trovi:
+   - un file .apk  -> da installare direttamente sui telefoni
+   - un file .aab  -> serve solo per il Play Store
+   - assetlinks.json -> IMPORTANTE, vedi sotto
+7. In QUESTA cartella crea una sottocartella chiamata:  .well-known
+   Copia dentro assetlinks.json e ritrascina tutto su Netlify.
+   Senza questo file l'app APK mostra la barra del browser in alto.
+8. Chiudi e riapri l'app installata: schermo pieno, fatto.
+
+INSTALLAZIONE SUI TELEFONI
+- Invia il file .apk via WhatsApp o Drive.
+- Al primo tocco Android chiede di consentire "origini sconosciute": conferma.
+
+IPHONE (niente APK)
+- Safari -> Condividi -> "Aggiungi alla schermata Home".
+- Aprire SEMPRE dall'icona: solo cosi' arrivano le notifiche (iOS 16.4+).
