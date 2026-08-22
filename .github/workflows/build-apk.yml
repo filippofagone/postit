@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: "20"
       - name: Prepara la parte web
-        run: cd app && npm ci && npx cap copy android
+        run: cd app && npm ci && npx cap sync android
       - name: Compila l'APK
         run: |
           cd app/android && chmod +x gradlew
