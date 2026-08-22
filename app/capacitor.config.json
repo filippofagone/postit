@@ -2,5 +2,10 @@
   "appId": "it.ebeautygroup.postit",
   "appName": "Post-It",
   "webDir": "www",
-  "server": { "androidScheme": "https" }
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "adjustMarginsForEdgeToEdge": "force"
+  }
 }
