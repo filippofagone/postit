@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Post-It</string>
+    <string name="title_activity_main">Post-It</string>
+    <string name="package_name">it.ebeautygroup.postit</string>
+    <string name="custom_url_scheme">it.ebeautygroup.postit</string>
+</resources>

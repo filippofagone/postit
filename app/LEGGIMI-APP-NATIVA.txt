@@ -1,0 +1,32 @@
+POST-IT — APP ANDROID NATIVA (Capacitor GIA' INSTALLATO)
+
+Tutto il lavoro Capacitor e' gia' fatto:
+- pacchetti installati, progetto Android generato (cartella android/)
+- app copiata dentro il pacchetto (funziona offline, niente Chrome)
+- icona "P." di Post-It gia' impostata in tutte le densita'
+- package: it.ebeautygroup.postit  |  nome: Post-It
+
+AL PC RESTA SOLO QUESTO:
+1. Installa Android Studio (gratuito): developer.android.com/studio
+2. Apri Android Studio -> "Open" -> scegli la cartella  android/
+   (aspetta che finisca la prima sincronizzazione: scarica da solo cio' che serve)
+3. Menu Build -> Build App Bundle(s)/APK(s) -> Build APK(s)
+4. L'APK e' in: android/app/build/outputs/apk/debug/app-debug.apk
+   -> installalo sui telefoni (consenti "origini sconosciute" una volta)
+
+NON serve Node, non servono comandi: l'app e' gia' dentro il progetto.
+
+PER GLI AGGIORNAMENTI FUTURI:
+chiedi a Claude lo zip aggiornato (rifara' lui l'intero progetto),
+oppure con Node installato: sostituisci www/index.html, poi
+  npm install && npx cap sync android
+e ricompila da Android Studio.
+
+PLAY STORE / TEST INTERNO (facoltativo):
+Build -> Generate Signed App Bundle -> carichi l'.aab nella Play Console
+(account Google Play 25 $ una tantum, canale "Internal testing" per il team).
+
+NOTIFICHE PUSH NATIVE (fase 2):
+serviranno Firebase (google-services.json con package it.ebeautygroup.postit)
++ piattaforma "Google Android" su OneSignal + plugin OneSignal.
+Fatti guidare in chat quando arrivi qui.
