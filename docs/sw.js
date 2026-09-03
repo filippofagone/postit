@@ -1,4 +1,4 @@
-const CACHE = "postit-v69";
+const CACHE = "postit-v70";
 const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", (e) => {
