@@ -7,5 +7,11 @@
   },
   "android": {
     "adjustMarginsForEdgeToEdge": "force"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_postit",
+      "iconColor": "#F2A50C"
+    }
   }
 }
