@@ -3,7 +3,8 @@
   "appName": "Post-It",
   "webDir": "www",
   "server": {
-    "androidScheme": "https"
+    "url": "https://filippofagone.github.io/postit/",
+    "cleartext": false
   },
   "android": {
     "adjustMarginsForEdgeToEdge": "force"
