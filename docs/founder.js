@@ -96,6 +96,11 @@
     await s.from("team").upsert({ id: id || ("tm-" + Date.now().toString(36)), nome, ruolo: principale || ruoli[0] || "", ruoli, permessi, lavoro, bio: bio || "", deco: deco || {} });
     await carica(); render();
   }
+  async function salvaFounder(patch) {
+    const s = sb(); if (!s) return;
+    await s.from("fondazione").upsert({ id: "cfg", founder_pid: (cfg || {}).founder_pid || null, data: Object.assign({}, (cfg || {}).data || {}, patch) });
+    await carica(); render();
+  }
   async function salvaColori(roleColors) {
     const s = sb(); if (!s) return;
     await s.from("fondazione").upsert({ id: "cfg", founder_pid: (cfg || {}).founder_pid || null, data: Object.assign({}, (cfg || {}).data || {}, { roleColors }) });
@@ -144,16 +149,27 @@
     if (cfg && cfg.founder_pid) ovl.appendChild(el("p", "ftSez", "— Founder —"));
     const boardF = el("div", "ftBoard");
     if (cfg && cfg.founder_pid) {
+      const fd = (cfg || {}).data || {};
+      const fNome = fd.founderName || "Filippo Fagone";
+      const fBio = fd.founderBio || "Creatore e unico sviluppatore di Post-It. 👑";
+      const fLav = fd.founderLavoro || "Creatore e unico sviluppatore di Post-It.";
+      const fPin = fd.founderPin || "classic";
       const fw = el("div", "ftWrap");
       fw.style.rotate = "-2deg";
       fw.style.cursor = "pointer";
-      fw.onclick = () => scheda({ nome: "Filippo Fagone", ruolo: "Founder & Solo Developer", ruoli: ["Founder & Solo Developer"], bio: "Creatore e unico sviluppatore di Post-It. 👑", deco: { pin: "classic" }, scuro: true });
-      fw.appendChild(pinDi({ pin: "classic" }));
+      fw.onclick = () => scheda({ nome: fNome, ruolo: "Founder & Solo Developer", ruoli: ["Founder & Solo Developer"], bio: fBio, lavoro: fLav, deco: { pin: fPin }, scuro: true });
+      fw.appendChild(pinDi({ pin: fPin }));
       const fc = el("div", "ftNote scuro");
-      fc.appendChild(el("span", "ftHole"));
-      fc.appendChild(el("h4", null, "Filippo Fagone"));
+      if (fPin === "classic") fc.appendChild(el("span", "ftHole"));
+      fc.appendChild(el("h4", null, fNome));
       fc.appendChild(el("span", "ftPill main", "Founder & Solo Developer"));
-      fc.appendChild(el("p", "ftLav", "Creatore e unico sviluppatore di Post-It."));
+      fc.appendChild(el("p", "ftLav", fLav));
+      if (sonoFounder()) {
+        const az = el("div", "ftAzioni");
+        const mod = el("button", "ftGo", "✏️");
+        mod.onclick = (ev) => { ev.stopPropagation(); formFounder(ovl, fd); };
+        az.appendChild(mod); fc.appendChild(az);
+      }
       fw.appendChild(fc);
       boardF.appendChild(fw);
     }
@@ -222,6 +238,26 @@
     wsk.appendChild(n);
     ov.appendChild(wsk);
     document.body.appendChild(ov);
+  }
+
+  function formFounder(ovl, fd) {
+    const f = el("div", "ftCard");
+    f.appendChild(el("h4", null, "Il tuo profilo da Founder"));
+    const nome = el("input", "ftInp"); nome.placeholder = "Nome e cognome"; nome.value = fd.founderName || "Filippo Fagone";
+    const bio = el("textarea", "ftTa"); bio.placeholder = "Biografia…"; bio.value = fd.founderBio || "";
+    const lav = el("textarea", "ftTa"); lav.placeholder = "Lavoro svolto…"; lav.value = fd.founderLavoro || "";
+    let pinScelto = fd.founderPin || "classic";
+    const pinWrap = el("div");
+    pinWrap.appendChild(el("p", "ftHint", "Il tuo pin"));
+    [["classic", "📌 intro"], "📍", "⭐", "❤️", "🌸", "🍀", "⚡", "🎯", "🔥", "✨"].map((x) => Array.isArray(x) ? x : [x, x]).forEach(([emo, lab]) => {
+      const bb = el("button", "ftPinPick" + (pinScelto === emo ? " on" : ""), lab); bb.type = "button";
+      bb.onclick = () => { pinScelto = emo; pinWrap.querySelectorAll(".ftPinPick").forEach((q) => q.classList.remove("on")); bb.classList.add("on"); };
+      pinWrap.appendChild(bb);
+    });
+    const ok = el("button", "ftGo", "Salva ✔");
+    ok.onclick = () => salvaFounder({ founderName: nome.value.trim() || "Filippo Fagone", founderBio: bio.value.trim(), founderLavoro: lav.value.trim(), founderPin: pinScelto });
+    f.append(nome, bio, lav, pinWrap, ok);
+    ovl.appendChild(f); f.scrollIntoView({ behavior: "smooth" });
   }
 
   function formMembro(ovl, m) {
