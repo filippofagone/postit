@@ -25,15 +25,23 @@
     .ftChk { display: flex; gap: 6px; align-items: center; font-size: 13.5px; margin: 3px 0; }
     .ftDiag p { margin: 4px 0; font-size: 13px; word-break: break-word; }
     .ftFounderBadge { background: #2A2620; color: #FFD34D; border-radius: 99px; padding: 3px 10px; font-size: 12.5px; font-weight: 800; display: inline-block; }
-    .ftOvl.sughero { background: #C89B67 radial-gradient(circle at 18% 22%, rgba(120,72,30,.22) 0 2px, transparent 3px), radial-gradient(circle at 64% 8%, rgba(120,72,30,.16) 0 2px, transparent 3px), radial-gradient(circle at 82% 46%, rgba(90,52,18,.2) 0 1.6px, transparent 2.6px), radial-gradient(circle at 38% 68%, rgba(120,72,30,.18) 0 2px, transparent 3px), radial-gradient(circle at 8% 84%, rgba(90,52,18,.15) 0 1.8px, transparent 2.8px), radial-gradient(circle at 90% 88%, rgba(120,72,30,.2) 0 2px, transparent 3px); background-size: 90px 90px, 120px 120px, 140px 140px, 110px 110px, 160px 160px, 130px 130px; }
+    .ftOvl.sughero { background-color: #C89B67; background-image: radial-gradient(circle at 18% 22%, rgba(120,72,30,.22) 0 2px, transparent 3px), radial-gradient(circle at 64% 8%, rgba(120,72,30,.16) 0 2px, transparent 3px), radial-gradient(circle at 82% 46%, rgba(90,52,18,.2) 0 1.6px, transparent 2.6px), radial-gradient(circle at 38% 68%, rgba(120,72,30,.18) 0 2px, transparent 3px), radial-gradient(circle at 8% 84%, rgba(90,52,18,.15) 0 1.8px, transparent 2.8px), radial-gradient(circle at 90% 88%, rgba(120,72,30,.2) 0 2px, transparent 3px); background-size: 90px 90px, 120px 120px, 140px 140px, 110px 110px, 160px 160px, 130px 130px; }
     .ftBoard { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 8px 0 16px; }
+    .ftWrap { position: relative; }
     .ftNote { position: relative; width: 150px; min-height: 140px; padding: 20px 10px 12px; border-radius: 4px; box-shadow: 0 10px 16px -8px rgba(50,30,10,.55); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%); }
-    .ftPin { position: absolute; top: -13px; left: 50%; transform: translateX(-50%) rotate(14deg); font-size: 23px; filter: drop-shadow(1px 3px 2px rgba(50,30,10,.45)); pointer-events: none; }
+    .ftNote.scuro { background: #2A2620 !important; }
+    .ftNote.scuro h4 { color: #FFD34D; }
+    .ftNote.scuro .ftPill.main { background: #FFD34D; color: #2A2620; }
+    .ftNote.scuro .ftLav { color: rgba(255,255,255,.8); }
+    .ftPin { position: absolute; top: -15px; left: 50%; transform: translateX(-50%) rotate(12deg); font-size: 23px; filter: drop-shadow(1px 3px 2px rgba(50,30,10,.45)); pointer-events: none; z-index: 3; }
+    .ftPin svg { display: block; }
+    .ftHole { position: absolute; top: 7px; left: 50%; transform: translateX(-42%); width: 7px; height: 4px; border-radius: 50%; background: rgba(30,20,8,.55); box-shadow: inset 0 1px 1px rgba(0,0,0,.6); z-index: 2; pointer-events: none; }
     .ftNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
     .ftNote h4 { margin: 0 0 6px; font-family: Caveat, cursive; font-size: 21px; line-height: 1.05; text-align: center; }
     .ftPill { display: block; width: fit-content; margin: 3px auto; border-radius: 99px; padding: 2px 9px; font-size: 11.5px; font-weight: 800; background: rgba(255,255,255,.65); }
     .ftPill.main { background: rgba(42,38,32,.85); color: #FFD34D; }
     .ftPill.main::before { content: "★ "; }
+    .ftPill.main::after { content: " ★"; }
     .ftLav { font-size: 11px; opacity: .8; margin-top: 6px; text-align: center; }
     .ftAzioni { text-align: center; margin-top: 8px; }
     .ftAzioni button { font-size: 11.5px; padding: 5px 9px; }
@@ -45,6 +53,9 @@
     .ftSchedaNote { position: relative; width: min(84vw, 330px); border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1.5deg; }
     .ftSchedaNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
     .ftSchedaNote h3 { margin: 0 0 8px; font-family: Caveat, cursive; font-size: 30px; text-align: center; }
+    .ftSchedaNote.scuro h3 { color: #FFD34D; }
+    .ftSchedaNote.scuro .ftBio, .ftSchedaNote.scuro .ftLav { color: rgba(255,255,255,.85); }
+    .ftSchedaNote.scuro .ftPill.main { background: #FFD34D; color: #2A2620; }
     .ftBio { font-size: 13.5px; margin: 10px 0; white-space: pre-wrap; }
     .ftChiudi { display: block; margin: 12px auto 0; border: 0; border-radius: 99px; padding: 9px 18px; background: #2A2620; color: #fff; font-weight: 800; }
     .ftPinPick { font-size: 21px; border: 2px solid transparent; border-radius: 10px; background: rgba(255,255,255,.7); padding: 3px 6px; margin: 2px; }
@@ -64,6 +75,14 @@
   const sonoFounder = () => !!(cfg && cfg.founder_pid && myPid() && cfg.founder_pid === myPid());
 
   function el(tag, cls, testo) { const e = document.createElement(tag); if (cls) e.className = cls; if (testo != null) e.textContent = testo; return e; }
+  function pinDi(deco) {
+    const scelto = (deco || {}).pin || "classic";
+    const p = el("span", "ftPin");
+    if (scelto === "classic") {
+      p.innerHTML = '<svg width="26" height="30" viewBox="0 0 26 30"><defs><radialGradient id="ftpg" cx="35%" cy="30%" r="75%"><stop offset="0%" stop-color="#FF8A80"/><stop offset="55%" stop-color="#E53935"/><stop offset="100%" stop-color="#B71C1C"/></radialGradient></defs><line x1="13" y1="14" x2="13" y2="27" stroke="#9AA0A8" stroke-width="2.4" stroke-linecap="round"/><line x1="12.2" y1="14" x2="12.2" y2="24" stroke="#E6E9EE" stroke-width="0.9" stroke-linecap="round"/><circle cx="13" cy="9" r="8" fill="url(#ftpg)"/><ellipse cx="10" cy="6" rx="2.6" ry="1.7" fill="rgba(255,255,255,.75)"/></svg>';
+    } else p.textContent = scelto;
+    return p;
+  }
 
   async function rivendica() {
     const s = sb(); if (!s || !myPid()) return alert("Apri prima l'app col tuo profilo.");
@@ -123,15 +142,31 @@
     ovl.classList.add("sughero");
     const board = el("div", "ftBoard");
     if (!team.length) board.appendChild(el("p", "ftHint", "La bacheca è vuota: la squadra arriverà 📌"));
+    if (cfg && cfg.founder_pid) {
+      const fw = el("div", "ftWrap");
+      fw.style.rotate = "-2deg";
+      fw.style.cursor = "pointer";
+      fw.onclick = () => scheda({ nome: "Filippo Fagone", ruolo: "Founder & Solo Developer", ruoli: ["Founder & Solo Developer"], bio: "Creatore e unico sviluppatore di Post-It. 👑", deco: { pin: "classic" }, scuro: true });
+      fw.appendChild(pinDi({ pin: "classic" }));
+      const fc = el("div", "ftNote scuro");
+      fc.appendChild(el("span", "ftHole"));
+      fc.appendChild(el("h4", null, "Filippo Fagone"));
+      fc.appendChild(el("span", "ftPill main", "Founder & Solo Developer"));
+      fc.appendChild(el("p", "ftLav", "Creatore e unico sviluppatore di Post-It."));
+      fw.appendChild(fc);
+      board.appendChild(fw);
+    }
     team.forEach((m, ix) => {
       const ruoli = (m.ruoli && m.ruoli.length ? m.ruoli : [m.ruolo]).filter(Boolean);
       const principale = m.ruolo || ruoli[0] || "";
+      const w = el("div", "ftWrap");
+      w.style.rotate = ((ix % 5) - 2) * 1.6 + "deg";
+      w.style.cursor = "pointer";
+      w.appendChild(pinDi(m.deco));
+      w.onclick = () => scheda(m);
       const c = el("div", "ftNote");
       c.style.background = coloreRuolo(principale);
-      c.style.rotate = ((ix % 5) - 2) * 1.6 + "deg";
-      c.style.cursor = "pointer";
-      c.appendChild(el("span", "ftPin", ((m.deco || {}).pin) || "📌"));
-      c.onclick = () => scheda(m);
+      if (!((m.deco || {}).pin) || (m.deco || {}).pin === "classic") c.appendChild(el("span", "ftHole"));
       c.appendChild(el("h4", null, m.nome));
       if (principale) c.appendChild(el("span", "ftPill main", principale));
       ruoli.filter((r) => r !== principale).forEach((r) => c.appendChild(el("span", "ftPill", r)));
@@ -142,7 +177,8 @@
         const del = el("button", "ftDel", "🗑"); del.style.marginLeft = "6px"; del.onclick = (ev) => { ev.stopPropagation(); if (confirm("Rimuovere " + m.nome + "?")) eliminaMembro(m.id); };
         az.append(mod, del); c.appendChild(az);
       }
-      board.appendChild(c);
+      w.appendChild(c);
+      board.appendChild(w);
     });
     ovl.appendChild(board);
 
@@ -164,9 +200,12 @@
     const principale = m.ruolo || ruoli[0] || "";
     const ov = el("div", "ftScheda");
     ov.onclick = (ev) => { if (ev.target === ov) ov.remove(); };
-    const n = el("div", "ftSchedaNote");
-    n.style.background = coloreRuolo(principale);
-    n.appendChild(el("span", "ftPin", ((m.deco || {}).pin) || "📌"));
+    const wsk = el("div"); wsk.style.position = "relative"; wsk.style.rotate = "-1.5deg";
+    const n = el("div", "ftSchedaNote" + (m.scuro ? " scuro" : ""));
+    n.style.rotate = "0deg";
+    n.style.background = m.scuro ? "#2A2620" : coloreRuolo(principale);
+    wsk.appendChild(pinDi(m.deco));
+    if (!((m.deco || {}).pin) || (m.deco || {}).pin === "classic") n.appendChild(el("span", "ftHole"));
     n.appendChild(el("h3", null, m.nome));
     if (principale) n.appendChild(el("span", "ftPill main", principale));
     ruoli.filter((r) => r !== principale).forEach((r) => n.appendChild(el("span", "ftPill", r)));
@@ -175,7 +214,8 @@
     const x = el("button", "ftChiudi", "Chiudi");
     x.onclick = () => ov.remove();
     n.appendChild(x);
-    ov.appendChild(n);
+    wsk.appendChild(n);
+    ov.appendChild(wsk);
     document.body.appendChild(ov);
   }
 
@@ -212,11 +252,11 @@
     });
     const lav = el("textarea", "ftTa"); lav.placeholder = "Lavoro svolto…"; lav.value = m ? m.lavoro || "" : "";
     const bio = el("textarea", "ftTa"); bio.placeholder = "Biografia (la vedranno tutti)…"; bio.value = m ? m.bio || "" : "";
-    let pinScelto = (m && m.deco && m.deco.pin) || "📌";
+    let pinScelto = (m && m.deco && m.deco.pin) || "classic";
     const pinWrap = el("div");
     pinWrap.appendChild(el("p", "ftHint", "Scegli il pin del post-it"));
-    ["📌", "📍", "⭐", "❤️", "🌸", "🍀", "⚡", "🎯", "🔥", "✨"].forEach((emo) => {
-      const bb = el("button", "ftPinPick" + (pinScelto === emo ? " on" : ""), emo); bb.type = "button";
+    [["classic", "📌 intro"], "📍", "⭐", "❤️", "🌸", "🍀", "⚡", "🎯", "🔥", "✨"].map((x) => Array.isArray(x) ? x : [x, x]).forEach(([emo, lab]) => {
+      const bb = el("button", "ftPinPick" + (pinScelto === emo ? " on" : ""), lab); bb.type = "button";
       bb.onclick = () => { pinScelto = emo; pinWrap.querySelectorAll(".ftPinPick").forEach((q) => q.classList.remove("on")); bb.classList.add("on"); };
       pinWrap.appendChild(bb);
     });
