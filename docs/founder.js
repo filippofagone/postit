@@ -76,6 +76,22 @@
   const sonoFounder = () => !!(cfg && cfg.founder_pid && myPid() && cfg.founder_pid === myPid());
 
   function el(tag, cls, testo) { const e = document.createElement(tag); if (cls) e.className = cls; if (testo != null) e.textContent = testo; return e; }
+  function pinPicker(iniziale, onPick) {
+    let scelto = iniziale || "classic";
+    const wrap = el("div");
+    wrap.appendChild(el("p", "ftHint", "Scegli il pin (o scrivi il tuo)"));
+    const evidenzia = () => wrap.querySelectorAll(".ftPinPick").forEach((q) => q.classList.toggle("on", q.dataset.pin === scelto));
+    [["classic", "📌 intro"], "📍", "⭐", "❤️", "🌸", "🍀", "⚡", "🎯", "🔥", "✨", "🎀", "🦋", "🌙", "🍄", "🐞", "🌈", "💎", "🔮", "🍕", "⚽", "🎮", "🎸", "👑", "🖤"].map((x) => Array.isArray(x) ? x : [x, x]).forEach(([emo, lab]) => {
+      const bb = el("button", "ftPinPick", lab); bb.type = "button"; bb.dataset.pin = emo;
+      bb.onclick = () => { scelto = emo; onPick(emo); evidenzia(); };
+      wrap.appendChild(bb);
+    });
+    const mio = el("input", "ftInp"); mio.placeholder = "…oppure il tuo emoji ✏️"; mio.maxLength = 4; mio.style.width = "170px";
+    mio.oninput = () => { const v = mio.value.trim(); if (v) { scelto = v; onPick(v); evidenzia(); } };
+    wrap.appendChild(mio);
+    setTimeout(evidenzia, 0);
+    return wrap;
+  }
   function pinDi(deco) {
     const scelto = (deco || {}).pin || "classic";
     const p = el("span", "ftPin");
@@ -247,13 +263,7 @@
     const bio = el("textarea", "ftTa"); bio.placeholder = "Biografia…"; bio.value = fd.founderBio || "";
     const lav = el("textarea", "ftTa"); lav.placeholder = "Lavoro svolto…"; lav.value = fd.founderLavoro || "";
     let pinScelto = fd.founderPin || "classic";
-    const pinWrap = el("div");
-    pinWrap.appendChild(el("p", "ftHint", "Il tuo pin"));
-    [["classic", "📌 intro"], "📍", "⭐", "❤️", "🌸", "🍀", "⚡", "🎯", "🔥", "✨"].map((x) => Array.isArray(x) ? x : [x, x]).forEach(([emo, lab]) => {
-      const bb = el("button", "ftPinPick" + (pinScelto === emo ? " on" : ""), lab); bb.type = "button";
-      bb.onclick = () => { pinScelto = emo; pinWrap.querySelectorAll(".ftPinPick").forEach((q) => q.classList.remove("on")); bb.classList.add("on"); };
-      pinWrap.appendChild(bb);
-    });
+    const pinWrap = pinPicker(pinScelto, (v) => (pinScelto = v));
     const ok = el("button", "ftGo", "Salva ✔");
     ok.onclick = () => salvaFounder({ founderName: nome.value.trim() || "Filippo Fagone", founderBio: bio.value.trim(), founderLavoro: lav.value.trim(), founderPin: pinScelto });
     f.append(nome, bio, lav, pinWrap, ok);
@@ -294,13 +304,7 @@
     const lav = el("textarea", "ftTa"); lav.placeholder = "Lavoro svolto…"; lav.value = m ? m.lavoro || "" : "";
     const bio = el("textarea", "ftTa"); bio.placeholder = "Biografia (la vedranno tutti)…"; bio.value = m ? m.bio || "" : "";
     let pinScelto = (m && m.deco && m.deco.pin) || "classic";
-    const pinWrap = el("div");
-    pinWrap.appendChild(el("p", "ftHint", "Scegli il pin del post-it"));
-    [["classic", "📌 intro"], "📍", "⭐", "❤️", "🌸", "🍀", "⚡", "🎯", "🔥", "✨"].map((x) => Array.isArray(x) ? x : [x, x]).forEach(([emo, lab]) => {
-      const bb = el("button", "ftPinPick" + (pinScelto === emo ? " on" : ""), lab); bb.type = "button";
-      bb.onclick = () => { pinScelto = emo; pinWrap.querySelectorAll(".ftPinPick").forEach((q) => q.classList.remove("on")); bb.classList.add("on"); };
-      pinWrap.appendChild(bb);
-    });
+    const pinWrap = pinPicker(pinScelto, (v) => (pinScelto = v));
     const ok = el("button", "ftGo", "Salva ✔");
     ok.onclick = async () => {
       if (!nome.value.trim() || !scelti.size) return;
