@@ -1,6 +1,6 @@
 /* ═══ POST-IT · MODULO FOUNDER (pezzo 1) ═══ */
 (function () {
-  const RUOLI = ["Alpha Tester", "Beta-Tester", "Bug Finder", "Customer Support", "Head of Customer Support", "App Security", "Head of App Security", "Announcer", "Head of Announcements"];
+  const RUOLI = ["Alpha Tester", "Beta-Tester", "Bug Finder", "Customer Support", "Head of Customer Support", "App Security", "Head of App Security", "Counselor", "Head Counselor", "Announcer", "Head of Announcements"];
   const PERMESSI = [["diag", "Diagnosi Database"], ["bug", "Bug Finder"], ["review", "App Review"], ["ann", "Fai un annuncio"]];
   const PALETTE = ["#FFF176", "#F8BBD0", "#90CAF9", "#CE93D8", "#FFAB91", "#A5D6A7", "#80DEEA", "#FFCC80"];
   const sb = () => window.__sb || null;
