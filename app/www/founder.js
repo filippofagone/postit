@@ -363,7 +363,7 @@
     const rwrap = el("div");
     rwrap.appendChild(el("p", "ftHint", "Ruoli (☑) · stellina = principale · pallino = colore del ruolo"));
     const ridisegna = () => {
-      rwrap.querySelectorAll(".ftRiga").forEach((x) => x.remove());
+      rwrap.querySelectorAll(".ftRiga, .ftStriscia").forEach((x) => x.remove());
       RUOLI.forEach((r) => {
         const riga = el("label", "ftChk ftRiga");
         const c = el("input"); c.type = "checkbox"; c.checked = scelti.has(r);
