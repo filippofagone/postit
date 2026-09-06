@@ -56,6 +56,17 @@
     .ftDot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(0,0,0,.15); display: inline-block; margin: 0 3px; }
     .ftDot.on { border-color: #2A2620; transform: scale(1.15); }
     .ftStriscia { display: flex; flex-wrap: wrap; gap: 2px; padding: 4px 0 6px 30px; }
+    .ftBar { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 6px); left: 10px; right: 10px; z-index: 880; border: 0; border-radius: 99px; padding: 9px 16px; font: inherit; font-weight: 800; font-size: 13.5px; box-shadow: 0 8px 18px -8px rgba(40,40,70,.5); display: flex; align-items: center; gap: 8px; animation: ftBarIn .4s ease; }
+    @keyframes ftBarIn { from { transform: translateY(-140%); } to { transform: translateY(0); } }
+    .ftBar b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; text-align: left; }
+    .ftAnnOvl { position: fixed; inset: 0; z-index: 992; background: rgba(40,30,15,.5); display: flex; align-items: center; justify-content: center; padding: 18px; }
+    .ftAnnNote { position: relative; width: min(88vw, 360px); max-height: 80vh; overflow-y: auto; border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1deg; }
+    .ftAnnNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
+    .ftAnnTxt { font-size: 15.5px; line-height: 1.45; white-space: pre-wrap; margin: 6px 0 4px; }
+    .ftAnnFirma { font-family: Caveat, cursive; font-size: 21px; text-align: right; margin: 6px 0 0; }
+    .ftAnnData { font-size: 11.5px; opacity: .7; text-align: right; }
+    .ftLogRiga { background: rgba(255,255,255,.85); border-radius: 12px; padding: 10px 12px; margin: 7px 0; border-left: 8px solid #FFF176; }
+    .ftLogRiga p { margin: 2px 0; font-size: 13px; white-space: pre-wrap; }
     .ftScheda { position: fixed; inset: 0; z-index: 995; background: rgba(40,30,15,.45); display: flex; align-items: center; justify-content: center; padding: 20px; }
     .ftSchedaNote { position: relative; width: min(84vw, 330px); border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1.5deg; }
     .ftSchedaNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
@@ -290,6 +301,32 @@
     });
     ovl.appendChild(board);
 
+    const io2 = mioMembro();
+    if (sonoFounder() || (io2 && (io2.permessi || {}).ann)) {
+      const ac2 = el("div", "ftCard");
+      ac2.appendChild(el("h4", null, "📣 Fai un annuncio"));
+      ac2.appendChild(el("p", "ftHint", "Sarà visibile a TUTTI gli utenti dell'app, come barra colorata."));
+      const ta2 = el("textarea", "ftTa"); ta2.placeholder = "Il tuo annuncio…";
+      let col2 = "#FFF176";
+      const strip2 = el("div", "ftStriscia"); strip2.style.padding = "4px 0";
+      PALETTE.forEach((col) => {
+        const d2 = el("i", "ftDot" + (col === col2 ? " on" : "")); d2.style.background = col;
+        d2.onclick = () => { col2 = col; strip2.querySelectorAll(".ftDot").forEach((q) => q.classList.toggle("on", q === d2)); ta2.style.background = col; };
+        strip2.appendChild(d2);
+      });
+      const inv = el("button", "ftGo", "📣 Pubblica");
+      inv.onclick = async () => {
+        if (!ta2.value.trim()) return;
+        const firma = sonoFounder() ? (((cfg || {}).data || {}).founderName || "Filippo Fagone") + " 👑" : io2.nome + " · " + (io2.ruolo || "");
+        await inviaAnnuncio(ta2.value, col2, firma);
+        ta2.value = ""; alert("Annuncio pubblicato 📣");
+      };
+      ac2.append(ta2, strip2, inv);
+      ovl.appendChild(ac2);
+      const lg = el("button", "ftGo", "📜 Announcement logs");
+      lg.onclick = vistaLogs;
+      ovl.appendChild(lg);
+    }
     if (sonoFounder()) {
       const add = el("button", "ftGo", "➕ Aggiungi membro"); add.onclick = () => formMembro(ovl, null);
       ovl.appendChild(add);
@@ -423,6 +460,72 @@
     b.onclick = async () => { await carica(); aperto = true; render(); };
     host.appendChild(b);
   }
+  /* ═══ ANNUNCI GLOBALI ═══ */
+  let annunci = [];
+  const CHIUSI = "postit:annChiusi";
+  const chiusi = () => { try { return JSON.parse(localStorage.getItem(CHIUSI) || "[]"); } catch (e) { return []; } };
+  const chiudiAnn = (id) => { const c = chiusi(); if (!c.includes(id)) { c.push(id); localStorage.setItem(CHIUSI, JSON.stringify(c)); } barra(); };
+  async function caricaAnnunci() {
+    const s = sb(); if (!s) return;
+    try { const r = await s.from("fannunci").select("*"); annunci = (r.data || []).sort((a, b) => new Date(b.at) - new Date(a.at)); } catch (e) {}
+    barra();
+  }
+  function barra() {
+    const vecchia = document.getElementById("ftBar"); if (vecchia) vecchia.remove();
+    const c = chiusi();
+    const att = annunci.find((a) => !c.includes(a.id));
+    if (!att) return;
+    const b = el("button", "ftBar"); b.id = "ftBar";
+    b.style.background = att.colore || "#FFF176";
+    b.append(el("span", null, "📣"), el("b", null, att.testo.slice(0, 80)));
+    b.onclick = () => vistaAnn(att);
+    document.body.appendChild(b);
+  }
+  function vistaAnn(a) {
+    const ov = el("div", "ftAnnOvl");
+    ov.onclick = (ev) => { if (ev.target === ov) ov.remove(); };
+    const n = el("div", "ftAnnNote");
+    n.style.background = a.colore || "#FFF176";
+    n.appendChild(el("h3", null, "📣 Annuncio"));
+    n.appendChild(el("p", "ftAnnTxt", a.testo));
+    n.appendChild(el("p", "ftAnnFirma", "— " + (a.autore || "Founder Team")));
+    n.appendChild(el("p", "ftAnnData", new Date(a.at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })));
+    const logsB = el("button", "ftGo", "📜 Announcement logs");
+    logsB.onclick = () => { ov.remove(); vistaLogs(); };
+    const x = el("button", "ftChiudi", "Chiudi");
+    x.onclick = () => { chiudiAnn(a.id); ov.remove(); };
+    n.append(logsB, x);
+    ov.appendChild(n);
+    document.body.appendChild(ov);
+  }
+  function vistaLogs() {
+    const ov = el("div", "ftAnnOvl");
+    ov.onclick = (ev) => { if (ev.target === ov) ov.remove(); };
+    const n = el("div", "ftAnnNote");
+    n.style.background = "#F4EFE6";
+    n.appendChild(el("h3", null, "📜 Announcement logs"));
+    if (!annunci.length) n.appendChild(el("p", "ftHint", "Nessun annuncio ancora."));
+    annunci.forEach((a) => {
+      const r = el("div", "ftLogRiga");
+      r.style.borderLeftColor = a.colore || "#FFF176";
+      r.appendChild(el("p", null, a.testo));
+      r.appendChild(el("p", "ftAnnData", (a.autore || "Founder Team") + " · " + new Date(a.at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })));
+      n.appendChild(r);
+    });
+    const x = el("button", "ftChiudi", "Chiudi");
+    x.onclick = () => ov.remove();
+    n.appendChild(x);
+    ov.appendChild(n);
+    document.body.appendChild(ov);
+  }
+  async function inviaAnnuncio(testo, colore, autore) {
+    const s = sb(); if (!s || !testo.trim()) return;
+    await s.from("fannunci").insert({ id: "an-" + Date.now().toString(36), testo: testo.trim(), colore, autore, at: new Date().toISOString() });
+    await caricaAnnunci();
+  }
+  caricaAnnunci();
+  setInterval(caricaAnnunci, 20000);
+
   new MutationObserver(aggancioHome).observe(document.documentElement, { childList: true, subtree: true });
   setInterval(aggancioHome, 1500);
   carica();
