@@ -27,6 +27,7 @@
     .ftFounderBadge { background: #2A2620; color: #FFD34D; border-radius: 99px; padding: 3px 10px; font-size: 12.5px; font-weight: 800; display: inline-block; }
     .ftOvl.sughero { background-color: #C89B67; background-image: radial-gradient(circle at 18% 22%, rgba(120,72,30,.22) 0 2px, transparent 3px), radial-gradient(circle at 64% 8%, rgba(120,72,30,.16) 0 2px, transparent 3px), radial-gradient(circle at 82% 46%, rgba(90,52,18,.2) 0 1.6px, transparent 2.6px), radial-gradient(circle at 38% 68%, rgba(120,72,30,.18) 0 2px, transparent 3px), radial-gradient(circle at 8% 84%, rgba(90,52,18,.15) 0 1.8px, transparent 2.8px), radial-gradient(circle at 90% 88%, rgba(120,72,30,.2) 0 2px, transparent 3px); background-size: 90px 90px, 120px 120px, 140px 140px, 110px 110px, 160px 160px, 130px 130px; }
     .ftBoard { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 8px 0 16px; }
+    .ftSez { font-family: Caveat, cursive; font-size: 27px; font-weight: 700; color: #3A2712; text-align: center; margin: 8px 0 0; text-shadow: 0 1px 0 rgba(255,255,255,.28); letter-spacing: .5px; }
     .ftWrap { position: relative; }
     .ftNote { position: relative; width: 150px; min-height: 140px; padding: 20px 10px 12px; border-radius: 4px; box-shadow: 0 10px 16px -8px rgba(50,30,10,.55); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%); }
     .ftNote.scuro { background: #2A2620 !important; }
@@ -140,8 +141,8 @@
     ovl.appendChild(fond);
 
     ovl.classList.add("sughero");
-    const board = el("div", "ftBoard");
-    if (!team.length) board.appendChild(el("p", "ftHint", "La bacheca è vuota: la squadra arriverà 📌"));
+    if (cfg && cfg.founder_pid) ovl.appendChild(el("p", "ftSez", "— Founder —"));
+    const boardF = el("div", "ftBoard");
     if (cfg && cfg.founder_pid) {
       const fw = el("div", "ftWrap");
       fw.style.rotate = "-2deg";
@@ -154,8 +155,12 @@
       fc.appendChild(el("span", "ftPill main", "Founder & Solo Developer"));
       fc.appendChild(el("p", "ftLav", "Creatore e unico sviluppatore di Post-It."));
       fw.appendChild(fc);
-      board.appendChild(fw);
+      boardF.appendChild(fw);
     }
+    ovl.appendChild(boardF);
+    ovl.appendChild(el("p", "ftSez", "— Helpers —"));
+    const board = el("div", "ftBoard");
+    if (!team.length) board.appendChild(el("p", "ftHint", "La bacheca aspetta i primi helper 📌"));
     team.forEach((m, ix) => {
       const ruoli = (m.ruoli && m.ruoli.length ? m.ruoli : [m.ruolo]).filter(Boolean);
       const principale = m.ruolo || ruoli[0] || "";
