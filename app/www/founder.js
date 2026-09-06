@@ -2,6 +2,7 @@
 (function () {
   const RUOLI = ["Alpha Tester", "Beta-Tester", "Bug Finder", "Customer Support", "Head of Customer Support", "App Security", "Head of App Security", "Announcer", "Head of Announcements"];
   const PERMESSI = [["diag", "Diagnosi Database"], ["bug", "Bug Finder"], ["review", "App Review"], ["ann", "Fai un annuncio"]];
+  const PALETTE = ["#FFF176", "#F8BBD0", "#90CAF9", "#CE93D8", "#FFAB91", "#A5D6A7", "#80DEEA", "#FFCC80"];
   const sb = () => window.__sb || null;
   const myPid = () => window.__myPid || null;
   let cfg = null, team = [], aperto = false;
@@ -24,6 +25,22 @@
     .ftChk { display: flex; gap: 6px; align-items: center; font-size: 13.5px; margin: 3px 0; }
     .ftDiag p { margin: 4px 0; font-size: 13px; word-break: break-word; }
     .ftFounderBadge { background: #2A2620; color: #FFD34D; border-radius: 99px; padding: 3px 10px; font-size: 12.5px; font-weight: 800; display: inline-block; }
+    .ftOvl.sughero { background: #C89B67 radial-gradient(circle at 18% 22%, rgba(120,72,30,.22) 0 2px, transparent 3px), radial-gradient(circle at 64% 8%, rgba(120,72,30,.16) 0 2px, transparent 3px), radial-gradient(circle at 82% 46%, rgba(90,52,18,.2) 0 1.6px, transparent 2.6px), radial-gradient(circle at 38% 68%, rgba(120,72,30,.18) 0 2px, transparent 3px), radial-gradient(circle at 8% 84%, rgba(90,52,18,.15) 0 1.8px, transparent 2.8px), radial-gradient(circle at 90% 88%, rgba(120,72,30,.2) 0 2px, transparent 3px); background-size: 90px 90px, 120px 120px, 140px 140px, 110px 110px, 160px 160px, 130px 130px; }
+    .ftBoard { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 8px 0 16px; }
+    .ftNote { position: relative; width: 150px; min-height: 140px; padding: 20px 10px 12px; border-radius: 4px; box-shadow: 0 10px 16px -8px rgba(50,30,10,.55); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%); }
+    .ftNote::before { content: ""; position: absolute; top: -8px; left: 50%; transform: translateX(-50%) rotate(-2deg); width: 58px; height: 18px; background: rgba(255,255,255,.55); border-radius: 2px; box-shadow: 0 1px 3px rgba(50,30,10,.25); }
+    .ftNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
+    .ftNote h4 { margin: 0 0 6px; font-family: Caveat, cursive; font-size: 21px; line-height: 1.05; text-align: center; }
+    .ftPill { display: block; width: fit-content; margin: 3px auto; border-radius: 99px; padding: 2px 9px; font-size: 11.5px; font-weight: 800; background: rgba(255,255,255,.65); }
+    .ftPill.main { background: rgba(42,38,32,.85); color: #FFD34D; }
+    .ftPill.main::before { content: "★ "; }
+    .ftLav { font-size: 11px; opacity: .8; margin-top: 6px; text-align: center; }
+    .ftAzioni { text-align: center; margin-top: 8px; }
+    .ftAzioni button { font-size: 11.5px; padding: 5px 9px; }
+    .ftStar { border: 0; background: transparent; font-size: 17px; padding: 0 4px; opacity: .3; }
+    .ftStar.on { opacity: 1; }
+    .ftDot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(0,0,0,.15); display: inline-block; margin: 0 3px; }
+    .ftDot.on { border-color: #2A2620; transform: scale(1.15); }
   `;
   document.head.appendChild(css);
 
@@ -46,11 +63,17 @@
     await carica(); render();
   }
 
-  async function salvaMembro(id, nome, ruolo, permessi, lavoro) {
+  async function salvaMembro(id, nome, ruoli, principale, permessi, lavoro) {
     const s = sb(); if (!s) return;
-    await s.from("team").upsert({ id: id || ("tm-" + Date.now().toString(36)), nome, ruolo, permessi, lavoro });
+    await s.from("team").upsert({ id: id || ("tm-" + Date.now().toString(36)), nome, ruolo: principale || ruoli[0] || "", ruoli, permessi, lavoro });
     await carica(); render();
   }
+  async function salvaColori(roleColors) {
+    const s = sb(); if (!s) return;
+    await s.from("fondazione").upsert({ id: "cfg", founder_pid: (cfg || {}).founder_pid || null, data: Object.assign({}, (cfg || {}).data || {}, { roleColors }) });
+    await carica(); render();
+  }
+  const coloreRuolo = (r) => (((cfg || {}).data || {}).roleColors || {})[r] || "#FFF176";
   async function eliminaMembro(id) {
     const s = sb(); if (!s) return;
     await s.from("team").delete().eq("id", id);
@@ -89,24 +112,28 @@
     }
     ovl.appendChild(fond);
 
-    const lista = el("div");
-    lista.appendChild(el("h4", null, "La squadra"));
-    if (!team.length) lista.appendChild(el("p", "ftHint", "Nessun membro ancora."));
-    team.forEach((m) => {
-      const c = el("div", "ftCard");
+    ovl.classList.add("sughero");
+    const board = el("div", "ftBoard");
+    if (!team.length) board.appendChild(el("p", "ftHint", "La bacheca è vuota: la squadra arriverà 📌"));
+    team.forEach((m, ix) => {
+      const ruoli = (m.ruoli && m.ruoli.length ? m.ruoli : [m.ruolo]).filter(Boolean);
+      const principale = m.ruolo || ruoli[0] || "";
+      const c = el("div", "ftNote");
+      c.style.background = coloreRuolo(principale);
+      c.style.rotate = ((ix % 5) - 2) * 1.6 + "deg";
       c.appendChild(el("h4", null, m.nome));
-      c.appendChild(el("span", "ftRole", m.ruolo || "—"));
-      if (m.lavoro) c.appendChild(el("p", "ftHint", "Lavoro svolto: " + m.lavoro));
+      if (principale) c.appendChild(el("span", "ftPill main", principale));
+      ruoli.filter((r) => r !== principale).forEach((r) => c.appendChild(el("span", "ftPill", r)));
+      if (m.lavoro) c.appendChild(el("p", "ftLav", m.lavoro));
       if (sonoFounder()) {
-        const attivi = PERMESSI.filter(([k]) => (m.permessi || {})[k]).map(([, l]) => l).join(", ");
-        c.appendChild(el("p", "ftHint", "Permessi: " + (attivi || "nessuno")));
-        const mod = el("button", "ftGo", "✏️ Modifica"); mod.onclick = () => formMembro(ovl, m);
-        const del = el("button", "ftDel", "🗑 Rimuovi"); del.style.marginLeft = "8px"; del.onclick = () => { if (confirm("Rimuovere " + m.nome + "?")) eliminaMembro(m.id); };
-        c.appendChild(el("div")).append(mod, del);
+        const az = el("div", "ftAzioni");
+        const mod = el("button", "ftGo", "✏️"); mod.onclick = () => formMembro(ovl, m);
+        const del = el("button", "ftDel", "🗑"); del.style.marginLeft = "6px"; del.onclick = () => { if (confirm("Rimuovere " + m.nome + "?")) eliminaMembro(m.id); };
+        az.append(mod, del); c.appendChild(az);
       }
-      lista.appendChild(c);
+      board.appendChild(c);
     });
-    ovl.appendChild(lista);
+    ovl.appendChild(board);
 
     if (sonoFounder()) {
       const add = el("button", "ftGo", "➕ Aggiungi membro"); add.onclick = () => formMembro(ovl, null);
@@ -125,10 +152,28 @@
     const f = el("div", "ftCard");
     f.appendChild(el("h4", null, m ? "Modifica membro" : "Nuovo membro"));
     const nome = el("input", "ftInp"); nome.placeholder = "Nome e cognome"; nome.value = m ? m.nome : "";
-    const sel = el("select", "ftSel");
-    RUOLI.forEach((r) => { const o = el("option", null, r); o.value = r; sel.appendChild(o); });
-    if (m && m.ruolo) sel.value = m.ruolo;
+    const rc = Object.assign({}, ((cfg || {}).data || {}).roleColors || {});
+    let scelti = new Set(m && m.ruoli && m.ruoli.length ? m.ruoli : m && m.ruolo ? [m.ruolo] : []);
+    let principale = m ? m.ruolo || "" : "";
+    const rwrap = el("div");
+    rwrap.appendChild(el("p", "ftHint", "Ruoli (☑) · stellina = principale · pallino = colore del ruolo"));
+    const ridisegna = () => {
+      rwrap.querySelectorAll(".ftRiga").forEach((x) => x.remove());
+      RUOLI.forEach((r) => {
+        const riga = el("label", "ftChk ftRiga");
+        const c = el("input"); c.type = "checkbox"; c.checked = scelti.has(r);
+        c.onchange = () => { c.checked ? scelti.add(r) : (scelti.delete(r), principale === r && (principale = "")); ridisegna(); };
+        const st = el("button", "ftStar" + (principale === r ? " on" : ""), "★"); st.type = "button";
+        st.onclick = () => { if (scelti.has(r)) { principale = principale === r ? "" : r; ridisegna(); } };
+        const dot = el("i", "ftDot"); dot.style.background = rc[r] || "#FFF176";
+        dot.onclick = (ev) => { ev.preventDefault(); const i2 = PALETTE.indexOf(rc[r] || "#FFF176"); rc[r] = PALETTE[(i2 + 1) % PALETTE.length]; ridisegna(); };
+        riga.append(c, st, dot, document.createTextNode(" " + r));
+        rwrap.appendChild(riga);
+      });
+    };
+    ridisegna();
     const perms = {}; const wrap = el("div");
+    wrap.appendChild(el("p", "ftHint", "Permessi"));
     PERMESSI.forEach(([k, lab]) => {
       const r = el("label", "ftChk"); const c = el("input"); c.type = "checkbox"; c.checked = !!(m && m.permessi && m.permessi[k]);
       c.onchange = () => (perms[k] = c.checked); perms[k] = c.checked;
@@ -136,8 +181,12 @@
     });
     const lav = el("textarea", "ftTa"); lav.placeholder = "Lavoro svolto…"; lav.value = m ? m.lavoro || "" : "";
     const ok = el("button", "ftGo", "Salva ✔");
-    ok.onclick = () => { if (nome.value.trim()) salvaMembro(m && m.id, nome.value.trim(), sel.value, perms, lav.value.trim()); };
-    f.append(nome, sel, wrap, lav, ok);
+    ok.onclick = async () => {
+      if (!nome.value.trim() || !scelti.size) return;
+      await salvaColori(rc);
+      salvaMembro(m && m.id, nome.value.trim(), [...scelti], principale || [...scelti][0], perms, lav.value.trim());
+    };
+    f.append(nome, rwrap, wrap, lav, ok);
     ovl.appendChild(f); f.scrollIntoView({ behavior: "smooth" });
   }
 
