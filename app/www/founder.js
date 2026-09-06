@@ -77,6 +77,14 @@
     body.ftSkin .profModal input, body.ftSkin .profModal textarea, body.ftSkin .profModal select { background: rgba(255,255,255,.94); color: #26221C; }
     body.ftSkin .profModal .ftFounderBadge { border: 1.5px solid #FFD34D; }
     body.ftSkin .avatar.homeAvatar { background: #2A2620 !important; box-shadow: 0 0 0 2.5px #FFD34D, 0 6px 14px -6px rgba(40,40,70,.5); }
+    .ftkTipo { display: block; width: 100%; border: 0; border-radius: 12px; padding: 11px 12px; margin: 6px 0; font: inherit; font-weight: 800; text-align: left; background: #fff; box-shadow: 0 3px 8px -4px rgba(40,40,70,.3); }
+    .ftkTipo small { display: block; font-weight: 600; font-size: 11.5px; opacity: .7; }
+    .ftkCard { background: #fff; border-radius: 12px; padding: 10px 12px; margin: 7px 0; border-left: 8px solid #FFD34D; }
+    .ftkCard p { margin: 3px 0; font-size: 13.5px; white-space: pre-wrap; }
+    .ftkMeta { font-size: 11.5px; opacity: .7; }
+    .ftkMsg { border-radius: 10px; padding: 7px 10px; margin: 5px 0; background: #F2EEE6; font-size: 13px; white-space: pre-wrap; }
+    .ftkMsg.team { background: #2A2620; color: #FFD34D; }
+    .ftkChiuso { opacity: .55; }
     .ftScheda { position: fixed; inset: 0; z-index: 995; background: rgba(40,30,15,.45); display: flex; align-items: center; justify-content: center; padding: 20px; }
     .ftSchedaNote { position: relative; width: min(84vw, 330px); border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1.5deg; }
     .ftSchedaNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
@@ -100,6 +108,7 @@
       const fix = (r) => (r === "Head of Customer Support" ? "Head of User Support" : r);
       team = (t.data || []).map((m) => Object.assign({}, m, { ruolo: fix(m.ruolo || ""), ruoli: (m.ruoli || []).map(fix) })).sort((a, b) => (a.nome > b.nome ? 1 : -1));
     } catch (e) {}
+    try { if (typeof avvisoFtk === "function") avvisoFtk(); } catch (e) {}
   }
   const sonoFounder = () => !!(cfg && cfg.founder_pid && myPid() && cfg.founder_pid === myPid());
   async function accedi(codice, membro) {
@@ -254,6 +263,10 @@
     }
 
     ovl.classList.add("sughero");
+    const sup = el("button", "ftBtn", "🎫 Founder Team Support");
+    sup.style.margin = "12px 0 4px";
+    sup.onclick = async () => { await caricaFtk(); vistaSupport(); };
+    ovl.appendChild(sup);
     if (cfg && cfg.founder_pid) ovl.appendChild(el("p", "ftSez", "— Founder —"));
     const boardF = el("div", "ftBoard");
     if (cfg && cfg.founder_pid) {
@@ -553,8 +566,135 @@
     await s.from("fannunci").insert({ id: "an-" + Date.now().toString(36), testo: testo.trim(), colore, autore, at: new Date().toISOString() });
     await caricaAnnunci();
   }
+  /* ═══ FOUNDER TEAM SUPPORT ═══ */
+  const ROTTE = {
+    "Segnala problema": ["Head of User Support", "Customer Support"],
+    "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
+    "Idee per l'app": ["ALL"],
+  };
+  const rotteTesto = (t) => (ROTTE[t] || []).map((r) => "@" + (r === "FOUNDER" ? "Founder & Solo Developer" : r === "ALL" ? "Founder Team" : r)).join(" ");
+  let ftk = [];
+  async function caricaFtk() {
+    const s = sb(); if (!s) return;
+    try { const r = await s.from("ftickets").select("*"); ftk = (r.data || []).sort((a, b) => new Date(b.at) - new Date(a.at)); } catch (e) {}
+    avvisoFtk();
+  }
+  const diMiaCompetenza = (t) => {
+    if (sonoFounder()) return true;
+    const io4 = mioMembro(); if (!io4) return false;
+    const rotte = ROTTE[t.tipo] || [];
+    if (rotte.includes("ALL")) return true;
+    const miei = (io4.ruoli && io4.ruoli.length ? io4.ruoli : [io4.ruolo]).filter(Boolean);
+    return rotte.some((r) => (r === "FOUNDER" ? false : miei.includes(r)));
+  };
+  const VISTI = "postit:ftkVisti";
+  const visti = () => { try { return JSON.parse(localStorage.getItem(VISTI) || "0"); } catch (e) { return 0; } };
+  function avvisoFtk() {
+    const vecchio = document.getElementById("ftkBar"); if (vecchio) vecchio.remove();
+    const dopo = visti();
+    const nuovi = ftk.filter((t) => {
+      const ultimo = (t.msgs || []).length ? new Date(t.msgs[t.msgs.length - 1].at).getTime() : new Date(t.at).getTime();
+      if (ultimo <= dopo) return false;
+      const perMe = diMiaCompetenza(t) && !t.closed;
+      const rispostaAMe = t.autore_pid === myPid() && (t.msgs || []).length && t.msgs[t.msgs.length - 1].team;
+      return perMe || rispostaAMe;
+    });
+    if (!nuovi.length) return;
+    const b = el("button", "ftBar"); b.id = "ftkBar";
+    b.style.background = "#2A2620"; b.style.color = "#FFD34D";
+    b.style.top = "calc(env(safe-area-inset-top, 0px) + 52px)";
+    b.append(el("span", null, "🎫"), el("b", null, nuovi.length + " novità nel Founder Team Support"));
+    b.onclick = () => { localStorage.setItem(VISTI, String(Date.now())); b.remove(); vistaSupport(); };
+    document.body.appendChild(b);
+  }
+  async function nuovoTicket(tipo, testo) {
+    const s = sb(); if (!s || !testo.trim()) return;
+    const nome = sonoFounder() ? (((cfg || {}).data || {}).founderName || "Founder") : (mioMembro() || {}).nome || "Utente";
+    await s.from("ftickets").insert({ id: "ftk-" + Date.now().toString(36), tipo, testo: testo.trim(), autore_pid: myPid() || null, autore_nome: nome, at: new Date().toISOString(), msgs: [], closed: false });
+    await caricaFtk();
+  }
+  async function rispondiTicket(t, testo, team) {
+    const s = sb(); if (!s || !testo.trim()) return;
+    const chi = team ? (sonoFounder() ? (((cfg || {}).data || {}).founderName || "Founder") + " 👑" : (mioMembro() || {}).nome + " · " + ((mioMembro() || {}).ruolo || "")) : t.autore_nome;
+    const msgs = [...(t.msgs || []), { da: chi, testo: testo.trim(), at: new Date().toISOString(), team: !!team }];
+    await s.from("ftickets").upsert(Object.assign({}, t, { msgs }));
+    await caricaFtk();
+  }
+  async function chiudiTicket(t) {
+    const s = sb(); if (!s) return;
+    await s.from("ftickets").upsert(Object.assign({}, t, { closed: true }));
+    await caricaFtk();
+  }
+  function cartaTicket(t, contesto) {
+    const c = el("div", "ftkCard" + (t.closed ? " ftkChiuso" : ""));
+    c.appendChild(el("p", null, "🎫 " + t.tipo + (t.closed ? " · chiuso ✔" : "")));
+    c.appendChild(el("p", "ftkMeta", t.autore_nome + " · " + new Date(t.at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " · " + rotteTesto(t.tipo)));
+    c.appendChild(el("p", null, t.testo));
+    (t.msgs || []).forEach((m) => {
+      const mm = el("div", "ftkMsg" + (m.team ? " team" : ""));
+      mm.textContent = m.da + ": " + m.testo;
+      c.appendChild(mm);
+    });
+    const posso = contesto === "team" || t.autore_pid === myPid();
+    if (!t.closed && posso) {
+      const ri = el("input", "ftInp"); ri.placeholder = "Rispondi…";
+      const rb = el("button", "ftGo", "➤");
+      rb.onclick = async () => { if (ri.value.trim()) { await rispondiTicket(t, ri.value); vistaSupport(true); } };
+      if (contesto === "team") rb.onclick = async () => { if (ri.value.trim()) { await rispondiTicket(t, ri.value, true); vistaSupport(true); } };
+      c.append(ri, rb);
+      if (contesto === "team") {
+        const cb = el("button", "ftDel", "Chiudi ticket");
+        cb.style.marginLeft = "8px";
+        cb.onclick = async () => { await chiudiTicket(t); vistaSupport(true); };
+        c.appendChild(cb);
+      }
+    }
+    return c;
+  }
+  function vistaSupport() {
+    const vecchio = document.querySelector(".ftkOvl"); if (vecchio) vecchio.remove();
+    const ov = el("div", "ftAnnOvl ftkOvl");
+    ov.onclick = (ev) => { if (ev.target === ov) ov.remove(); };
+    const n = el("div", "ftAnnNote");
+    n.style.background = "#F4EFE6";
+    n.appendChild(el("h3", null, "🎫 Founder Team Support"));
+    n.appendChild(el("p", "ftHint", "Scrivi al Founder Team: il messaggio arriva ai ruoli giusti."));
+    Object.keys(ROTTE).forEach((tipo) => {
+      const tb = el("button", "ftkTipo");
+      tb.appendChild(document.createTextNode(tipo === "Segnala problema" ? "🛠 " + tipo : tipo === "Segnala Staff" ? "🚨 " + tipo : "💡 " + tipo));
+      tb.appendChild(el("small", null, rotteTesto(tipo)));
+      tb.onclick = () => {
+        const gia = n.querySelector(".ftkNuovo"); if (gia) gia.remove();
+        const f = el("div", "ftkCard ftkNuovo");
+        f.appendChild(el("p", null, tipo));
+        const ta = el("textarea", "ftTa"); ta.placeholder = "Racconta…";
+        const inv = el("button", "ftGo", "Invia 🎫");
+        inv.onclick = async () => { await nuovoTicket(tipo, ta.value); vistaSupport(); };
+        f.append(ta, inv);
+        tb.after(f);
+      };
+      n.appendChild(tb);
+    });
+    const miei = ftk.filter((t) => t.autore_pid === myPid());
+    if (miei.length) {
+      n.appendChild(el("h4", null, "I tuoi ticket"));
+      miei.forEach((t) => n.appendChild(cartaTicket(t, "mio")));
+    }
+    const comp = ftk.filter((t) => diMiaCompetenza(t) && t.autore_pid !== myPid());
+    if ((sonoFounder() || mioMembro()) && comp.length) {
+      n.appendChild(el("h4", null, "Di tua competenza"));
+      comp.forEach((t) => n.appendChild(cartaTicket(t, "team")));
+    }
+    const x = el("button", "ftChiudi", "Chiudi");
+    x.onclick = () => ov.remove();
+    n.appendChild(x);
+    ov.appendChild(n);
+    document.body.appendChild(ov);
+  }
   caricaAnnunci();
+  caricaFtk();
   setInterval(caricaAnnunci, 20000);
+  setInterval(caricaFtk, 20000);
 
   const agganci = () => { aggancioHome(); aggancioProfilo(); try { document.body.classList.toggle("ftSkin", sonoFounder()); } catch (e) {} };
   new MutationObserver(agganci).observe(document.documentElement, { childList: true, subtree: true });
