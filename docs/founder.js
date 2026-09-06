@@ -32,7 +32,7 @@
     .ftBoard { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 8px 0 16px; }
     .ftSez { font-family: Caveat, cursive; font-size: 27px; font-weight: 700; color: #3A2712; text-align: center; margin: 8px 0 0; text-shadow: 0 1px 0 rgba(255,255,255,.28); letter-spacing: .5px; }
     .ftWrap { position: relative; }
-    .ftNote { position: relative; width: 150px; min-height: 140px; padding: 20px 10px 12px; border-radius: 4px; box-shadow: 0 10px 16px -8px rgba(50,30,10,.55); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%); }
+    .ftNote { position: relative; width: min(88vw, 350px); min-height: 110px; padding: 20px 16px 12px; border-radius: 4px; box-shadow: 0 10px 16px -8px rgba(50,30,10,.55); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%); }
     .ftNote.scuro { background: #2A2620 !important; }
     .ftNote.scuro h4 { color: #FFD34D; }
     .ftNote.scuro .ftPill.main { background: #FFD34D; color: #2A2620; }
@@ -41,12 +41,14 @@
     .ftPin svg { display: block; }
     .ftHole { position: absolute; top: 7px; left: 50%; transform: translateX(-42%); width: 7px; height: 4px; border-radius: 50%; background: rgba(30,20,8,.55); box-shadow: inset 0 1px 1px rgba(0,0,0,.6); z-index: 2; pointer-events: none; }
     .ftNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
-    .ftNote h4 { margin: 0 0 6px; font-family: Caveat, cursive; font-size: 21px; line-height: 1.05; text-align: center; }
-    .ftPill { display: block; width: fit-content; margin: 3px auto; border-radius: 99px; padding: 2px 9px; font-size: 11.5px; font-weight: 800; background: rgba(255,255,255,.65); }
+    .ftNote h4 { margin: 0 0 6px; font-family: Caveat, cursive; font-size: 25px; line-height: 1.05; text-align: center; }
+    .ftPill { display: inline-block; width: fit-content; margin: 3px 3px; border-radius: 99px; padding: 2px 10px; font-size: 12px; font-weight: 800; background: rgba(255,255,255,.65); }
+    .ftNote { text-align: center; }
+    .ftPill.main { display: block; margin: 3px auto; }
     .ftPill.main { background: rgba(42,38,32,.85); color: #FFD34D; }
     .ftPill.main::before { content: "★ "; }
     .ftPill.main::after { content: " ★"; }
-    .ftLav { font-size: 11px; opacity: .8; margin-top: 6px; text-align: center; }
+    .ftLav { font-size: 12.5px; opacity: .85; margin-top: 7px; text-align: center; line-height: 1.35; }
     .ftAzioni { text-align: center; margin-top: 8px; }
     .ftAzioni button { font-size: 11.5px; padding: 5px 9px; }
     .ftStar { border: 0; background: transparent; font-size: 17px; padding: 0 4px; opacity: .3; }
