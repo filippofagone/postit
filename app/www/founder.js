@@ -448,6 +448,26 @@
     ovl.appendChild(f); f.scrollIntoView({ behavior: "smooth" });
   }
 
+  function aggancioProfilo() {
+    if (document.getElementById("ftProfBadge")) {
+      if (!sonoFounder() && !mioMembro()) document.getElementById("ftProfBadge").remove();
+      return;
+    }
+    const titoli = [...document.querySelectorAll("h1,h2,h3,b,strong,p,div")].filter((x) => x.childElementCount === 0 && /Il tuo profilo/.test(x.textContent));
+    if (!titoli.length) return;
+    let badge = null;
+    if (sonoFounder()) {
+      badge = el("div", "ftFounderBadge", "👑 Founder & Solo Developer");
+    } else {
+      const io3 = mioMembro();
+      if (io3) badge = el("div", "ftFounderBadge", "🛠 Founder Team · " + (io3.ruolo || "Member"));
+    }
+    if (!badge) return;
+    badge.id = "ftProfBadge";
+    badge.style.cssText += "display:block;width:fit-content;margin:8px auto 0;font-size:13.5px;padding:5px 14px;";
+    const nomeEl = titoli[0].parentElement && titoli[0].parentElement.querySelector("h1,h2,.accName,b");
+    (nomeEl && nomeEl.parentElement ? nomeEl.parentElement : titoli[0].parentElement).appendChild(badge);
+  }
   function aggancioHome() {
     if (document.getElementById("ftEntra")) return;
     const bottoni = [...document.querySelectorAll("button")];
@@ -526,7 +546,8 @@
   caricaAnnunci();
   setInterval(caricaAnnunci, 20000);
 
-  new MutationObserver(aggancioHome).observe(document.documentElement, { childList: true, subtree: true });
-  setInterval(aggancioHome, 1500);
+  const agganci = () => { aggancioHome(); aggancioProfilo(); };
+  new MutationObserver(agganci).observe(document.documentElement, { childList: true, subtree: true });
+  setInterval(agganci, 1500);
   carica();
 })();
