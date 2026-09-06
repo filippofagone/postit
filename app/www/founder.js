@@ -67,6 +67,16 @@
     .ftAnnData { font-size: 11.5px; opacity: .7; text-align: right; }
     .ftLogRiga { background: rgba(255,255,255,.85); border-radius: 12px; padding: 10px 12px; margin: 7px 0; border-left: 8px solid #FFF176; }
     .ftLogRiga p { margin: 2px 0; font-size: 13px; white-space: pre-wrap; }
+    body.ftSkin .modal.profModal { background: #2A2620 !important; color: #F2E7CF; }
+    body.ftSkin .profModal .dmHead b { color: #FFD34D; }
+    body.ftSkin .profModal .profTop { color: #FFD34D; }
+    body.ftSkin .profModal .accBtn { background: rgba(255,255,255,.09); color: #FFD34D; }
+    body.ftSkin .profModal .accList, body.ftSkin .profModal .editBox { background: rgba(255,255,255,.08); color: #F2E7CF; }
+    body.ftSkin .profModal .pillBtn { background: rgba(255,255,255,.14); color: #FFD34D; }
+    body.ftSkin .profModal .hint { color: rgba(242,231,207,.75); }
+    body.ftSkin .profModal input, body.ftSkin .profModal textarea, body.ftSkin .profModal select { background: rgba(255,255,255,.94); color: #26221C; }
+    body.ftSkin .profModal .ftFounderBadge { border: 1.5px solid #FFD34D; }
+    body.ftSkin .avatar.homeAvatar { background: #2A2620 !important; box-shadow: 0 0 0 2.5px #FFD34D, 0 6px 14px -6px rgba(40,40,70,.5); }
     .ftScheda { position: fixed; inset: 0; z-index: 995; background: rgba(40,30,15,.45); display: flex; align-items: center; justify-content: center; padding: 20px; }
     .ftSchedaNote { position: relative; width: min(84vw, 330px); border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1.5deg; }
     .ftSchedaNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
@@ -546,7 +556,7 @@
   caricaAnnunci();
   setInterval(caricaAnnunci, 20000);
 
-  const agganci = () => { aggancioHome(); aggancioProfilo(); };
+  const agganci = () => { aggancioHome(); aggancioProfilo(); try { document.body.classList.toggle("ftSkin", sonoFounder()); } catch (e) {} };
   new MutationObserver(agganci).observe(document.documentElement, { childList: true, subtree: true });
   setInterval(agganci, 1500);
   carica();
