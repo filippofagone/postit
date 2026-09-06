@@ -1,8 +1,8 @@
 /* ═══ POST-IT · MODULO FOUNDER (pezzo 1) ═══ */
 (function () {
-  const RUOLI = ["Alpha Tester", "Beta-Tester", "Bug Finder", "Customer Support", "Head of Customer Support", "App Security", "Head of App Security", "Designer", "Lead Designer", "Counselor", "Head Counselor", "Announcer", "Head of Announcements"];
+  const RUOLI = ["Alpha Tester", "Beta-Tester", "Bug Finder", "Customer Support", "Head of User Support", "App Security", "Head of App Security", "Designer", "Lead Designer", "Counselor", "Head Counselor", "Announcer", "Head of Announcements"];
   const PERMESSI = [["diag", "Diagnosi Database"], ["bug", "Bug Finder"], ["review", "App Review"], ["ann", "Fai un annuncio"]];
-  const PALETTE = ["#FFF176", "#F8BBD0", "#90CAF9", "#CE93D8", "#FFAB91", "#A5D6A7", "#80DEEA", "#FFCC80"];
+  const PALETTE = ["#FFF176", "#FFD54F", "#FFCC80", "#FFAB91", "#FF8A80", "#F8BBD0", "#F48FB1", "#CE93D8", "#B39DDB", "#9FA8DA", "#90CAF9", "#81D4FA", "#80DEEA", "#80CBC4", "#A5D6A7", "#C5E1A5", "#E6EE9C", "#BCAAA4", "#E0E0E0", "#FFD34D"];
   const sb = () => window.__sb || null;
   const myPid = () => window.__myPid || null;
   let cfg = null, team = [], aperto = false;
@@ -50,6 +50,7 @@
     .ftStar.on { opacity: 1; }
     .ftDot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(0,0,0,.15); display: inline-block; margin: 0 3px; }
     .ftDot.on { border-color: #2A2620; transform: scale(1.15); }
+    .ftStriscia { display: flex; flex-wrap: wrap; gap: 2px; padding: 4px 0 6px 30px; }
     .ftScheda { position: fixed; inset: 0; z-index: 995; background: rgba(40,30,15,.45); display: flex; align-items: center; justify-content: center; padding: 20px; }
     .ftSchedaNote { position: relative; width: min(84vw, 330px); border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1.5deg; }
     .ftSchedaNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
@@ -70,7 +71,8 @@
       const c = await s.from("fondazione").select("*").eq("id", "cfg").maybeSingle();
       cfg = c.data || null;
       const t = await s.from("team").select("*");
-      team = (t.data || []).sort((a, b) => (a.nome > b.nome ? 1 : -1));
+      const fix = (r) => (r === "Head of Customer Support" ? "Head of User Support" : r);
+      team = (t.data || []).map((m) => Object.assign({}, m, { ruolo: fix(m.ruolo || ""), ruoli: (m.ruoli || []).map(fix) })).sort((a, b) => (a.nome > b.nome ? 1 : -1));
     } catch (e) {}
   }
   const sonoFounder = () => !!(cfg && cfg.founder_pid && myPid() && cfg.founder_pid === myPid());
@@ -288,7 +290,20 @@
         const st = el("button", "ftStar" + (principale === r ? " on" : ""), "★"); st.type = "button";
         st.onclick = () => { if (scelti.has(r)) { principale = principale === r ? "" : r; ridisegna(); } };
         const dot = el("i", "ftDot"); dot.style.background = rc[r] || "#FFF176";
-        dot.onclick = (ev) => { ev.preventDefault(); const i2 = PALETTE.indexOf(rc[r] || "#FFF176"); rc[r] = PALETTE[(i2 + 1) % PALETTE.length]; ridisegna(); };
+        dot.onclick = (ev) => {
+          ev.preventDefault();
+          const vecchia = rwrap.querySelector(".ftStriscia");
+          const era = vecchia && vecchia.dataset.ruolo === r;
+          if (vecchia) vecchia.remove();
+          if (era) return;
+          const strip = el("div", "ftStriscia"); strip.dataset.ruolo = r;
+          PALETTE.forEach((col) => {
+            const d2 = el("i", "ftDot" + ((rc[r] || "#FFF176") === col ? " on" : "")); d2.style.background = col;
+            d2.onclick = (e2) => { e2.preventDefault(); rc[r] = col; ridisegna(); };
+            strip.appendChild(d2);
+          });
+          riga.after(strip);
+        };
         riga.append(c, st, dot, document.createTextNode(" " + r));
         rwrap.appendChild(riga);
       });
