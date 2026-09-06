@@ -6,6 +6,9 @@
   const sb = () => window.__sb || null;
   const myPid = () => window.__myPid || null;
   let cfg = null, team = [], aperto = false;
+  const LOCK = "postit:ft";
+  const chiSono = () => { try { return JSON.parse(localStorage.getItem(LOCK) || "null"); } catch (e) { return null; } };
+  const mioMembro = () => { const a = chiSono(); return a ? team.find((m) => m.id === a.memberId) || null : null; };
 
   const css = document.createElement("style");
   css.textContent = `
@@ -76,6 +79,18 @@
     } catch (e) {}
   }
   const sonoFounder = () => !!(cfg && cfg.founder_pid && myPid() && cfg.founder_pid === myPid());
+  async function accedi(codice, membro) {
+    const s = sb(); if (!s) return false;
+    localStorage.setItem(LOCK, JSON.stringify({ memberId: membro.id, at: Date.now() }));
+    try { await s.from("team").upsert(Object.assign({}, membro, { pid: myPid() || membro.pid || null })); } catch (e) {}
+    await carica(); render();
+    return true;
+  }
+  async function salvaMio(m, bio, deco) {
+    const s = sb(); if (!s) return;
+    await s.from("team").upsert(Object.assign({}, m, { bio: bio || "", deco: deco || {}, pid: myPid() || m.pid || null }));
+    await carica(); render();
+  }
 
   function el(tag, cls, testo) { const e = document.createElement(tag); if (cls) e.className = cls; if (testo != null) e.textContent = testo; return e; }
   function pinPicker(iniziale, onPick) {
@@ -162,6 +177,58 @@
       fond.appendChild(b);
     }
     ovl.appendChild(fond);
+    if (sonoFounder()) {
+      const kc = el("div", "ftCard");
+      kc.appendChild(el("h4", null, "🔑 Codice del Founder Team"));
+      kc.appendChild(el("p", "ftHint", "Solo chi lo conosce può accedere e diventare un membro."));
+      const ki = el("input", "ftInp"); ki.placeholder = "Codice segreto…"; ki.value = (cfg || {}).team_code || "";
+      const ks = el("button", "ftGo", "Salva codice ✔");
+      ks.onclick = async () => { const s2 = sb(); if (s2) { await s2.from("fondazione").upsert({ id: "cfg", founder_pid: cfg.founder_pid, team_code: ki.value.trim() }); await carica(); render(); } };
+      kc.append(ki, ks);
+      ovl.appendChild(kc);
+    } else if (cfg && cfg.founder_pid) {
+      const io = mioMembro();
+      if (io) {
+        const idc = el("div", "ftCard");
+        idc.appendChild(el("h4", null, "🔓 Sei " + io.nome));
+        idc.appendChild(el("span", "ftRole", io.ruolo || "—"));
+        const attivi = PERMESSI.filter(([k]) => (io.permessi || {})[k]).map(([, l]) => l);
+        idc.appendChild(el("p", "ftHint", attivi.length ? "Permessi: " + attivi.join(", ") : "Nessun permesso assegnato (per ora)."));
+        if ((io.permessi || {}).diag) {
+          const dv = el("div", "ftDiag"); const db = el("button", "ftGo", "🩺 Diagnosi Database");
+          db.onclick = () => diagnosi(dv); idc.append(db, dv);
+        }
+        const em = el("button", "ftGo", "✏️ Il mio post-it");
+        em.onclick = () => formMio(ovl, io);
+        idc.appendChild(em);
+        idc.appendChild(el("p", "ftHint", "Questa identità è legata a questo telefono e non si cambia."));
+        ovl.appendChild(idc);
+      } else if (chiSono()) {
+        localStorage.removeItem(LOCK);
+      } else {
+        const ac = el("div", "ftCard");
+        const ab = el("button", "ftGo", "🔐 Accedi (solo Founder Team)");
+        ab.onclick = () => {
+          ab.remove();
+          const pi = el("input", "ftInp"); pi.placeholder = "Codice del team…"; pi.type = "password";
+          const ok2 = el("button", "ftGo", "Conferma");
+          const errp = el("p", "ftHint", "");
+          ok2.onclick = () => {
+            if (!cfg.team_code || pi.value.trim().toLowerCase() !== String(cfg.team_code).trim().toLowerCase()) { errp.textContent = "Codice sbagliato 🙅"; return; }
+            pi.remove(); ok2.remove(); errp.textContent = "Chi sei? La scelta resterà per sempre su questo telefono.";
+            team.forEach((m) => {
+              const bm = el("button", "ftGo", m.nome + " · " + (m.ruolo || ""));
+              bm.style.display = "block"; bm.style.margin = "6px 0";
+              bm.onclick = () => { if (confirm("Sarai «" + m.nome + "» per sempre su questo telefono. Confermi?")) accedi(pi.value, m); };
+              ac.appendChild(bm);
+            });
+          };
+          ac.append(pi, ok2, errp);
+        };
+        ac.appendChild(ab);
+        ovl.appendChild(ac);
+      }
+    }
 
     ovl.classList.add("sughero");
     if (cfg && cfg.founder_pid) ovl.appendChild(el("p", "ftSez", "— Founder —"));
@@ -269,6 +336,18 @@
     const ok = el("button", "ftGo", "Salva ✔");
     ok.onclick = () => salvaFounder({ founderName: nome.value.trim() || "Filippo Fagone", founderBio: bio.value.trim(), founderLavoro: lav.value.trim(), founderPin: pinScelto });
     f.append(nome, bio, lav, pinWrap, ok);
+    ovl.appendChild(f); f.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function formMio(ovl, m) {
+    const f = el("div", "ftCard");
+    f.appendChild(el("h4", null, "Il tuo post-it"));
+    const bio = el("textarea", "ftTa"); bio.placeholder = "La tua biografia…"; bio.value = m.bio || "";
+    let pinScelto = (m.deco || {}).pin || "classic";
+    const pinWrap = pinPicker(pinScelto, (v) => (pinScelto = v));
+    const ok = el("button", "ftGo", "Salva ✔");
+    ok.onclick = () => salvaMio(m, bio.value.trim(), Object.assign({}, m.deco || {}, { pin: pinScelto }));
+    f.append(bio, pinWrap, ok);
     ovl.appendChild(f); f.scrollIntoView({ behavior: "smooth" });
   }
 
