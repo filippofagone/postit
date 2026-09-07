@@ -104,8 +104,8 @@
     @keyframes ftkVia { 40% { transform: rotate(-3deg) scale(.96); } 100% { transform: rotate(8deg) scale(.1); opacity: 0; } }
     body.ftTeamRing .avatar.homeAvatar { box-shadow: 0 0 0 2.5px #FFD34D, 0 6px 14px -6px rgba(40,40,70,.5) !important; }
     .ftStelline { position: relative; overflow: visible !important; }
-    .ftStelline::before { content: "\2726"; position: absolute; top: -10px; left: -8px; font-size: 20px; color: #FFD34D; text-shadow: 0 0 4px rgba(255,211,77,.95); pointer-events: none; z-index: 3; }
-    .ftStelline::after { content: "\2726"; position: absolute; bottom: -8px; right: -6px; font-size: 11px; color: #FFD34D; text-shadow: 0 0 3px rgba(255,211,77,.95); pointer-events: none; z-index: 3; }
+    .ftStelline::before { content: "✦"; position: absolute; top: -10px; left: -8px; font-size: 20px; color: #FFD34D; text-shadow: 0 0 4px rgba(255,211,77,.95); pointer-events: none; z-index: 3; }
+    .ftStelline::after { content: "✦"; position: absolute; bottom: -8px; right: -6px; font-size: 11px; color: #FFD34D; text-shadow: 0 0 3px rgba(255,211,77,.95); pointer-events: none; z-index: 3; }
     .ftCoronaMem { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
     .ftCoronaMem i { position: absolute; font-style: normal; color: #FFD34D; text-shadow: 0 0 5px rgba(255,211,77,.95); transform: translate(-50%, -50%); }
     .userCard.ftMemFounder, .userCard.ftMemFounder .hint { color: #FFD34D !important; }
@@ -853,7 +853,7 @@
       if (getComputedStyle(card).position === "static") card.style.position = "relative";
       const cor = el("span", "ftCoronaMem");
       CORONA7.forEach(([x, y], i2) => {
-        const st = el("i", null, "\u2726");
+        const st = el("i", null, "✦");
         st.style.left = x + "%"; st.style.top = y + "%";
         st.style.fontSize = (i2 === 4 ? 17 : 11 + (i2 % 3) * 2) + "px";
         cor.appendChild(st);
