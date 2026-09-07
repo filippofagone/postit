@@ -637,11 +637,19 @@
   }
   async function aggiornaTicket(t, patch) {
     const s = sb(); if (!s) return;
-    await s.from("ftickets").upsert(Object.assign({}, t, patch));
+    const r = await s.from("ftickets").upsert(Object.assign({}, t, patch));
+    if (r && r.error) { alert("⚠️ Il database ha rifiutato: " + r.error.message + "\n(Se parla di colonne mancanti, esegui postit-supabase-v10e-founder.sql)"); return; }
     await caricaFtk();
   }
   const mioNomeTeam = () => sonoFounder() ? (((cfg || {}).data || {}).founderName || "Founder") + " 👑" : ((mioMembro() || {}).nome || "");
   const mioIdTeam = () => sonoFounder() ? "FOUNDER" : ((mioMembro() || {}).id || null);
+  const emojiDi = (assigneeId) => {
+    if (!assigneeId) return "";
+    if (assigneeId === "FOUNDER") return "👑";
+    const m = team.find((x) => x.id === assigneeId);
+    const p = m && m.deco && m.deco.pin;
+    return p && p !== "classic" ? p : "📌";
+  };
   async function chiudiTicket(t) {
     const s = sb(); if (!s) return;
     await s.from("ftickets").upsert(Object.assign({}, t, { closed: true }));
@@ -651,7 +659,7 @@
     const c = el("div", "ftkCard" + (t.closed ? " ftkChiuso" : ""));
     c.style.cursor = "pointer";
     const stato = t.closed ? "chiuso ✔" : t.assignee ? "in carico a " + (t.assignee_nome || "?") : "in attesa";
-    const tit = el("p", null, "🎫 " + t.tipo);
+    const tit = el("p", null, "🎫 " + (t.assignee ? emojiDi(t.assignee) + " " : "") + t.tipo);
     tit.appendChild(el("span", "ftkStato", stato));
     c.appendChild(tit);
     c.appendChild(el("p", "ftkMeta", t.autore_nome + " · " + new Date(t.at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " · " + rotteTesto(t.tipo)));
@@ -668,7 +676,7 @@
     const head = el("div", "ftcHead");
     const back = el("button", "ftBack", "‹");
     back.onclick = () => { ov.remove(); vistaSupport(); };
-    head.append(back, el("b", null, "🎫 " + t.tipo + (t.closed ? " · chiuso ✔" : "")));
+    head.append(back, el("b", null, "🎫 " + (t.assignee ? emojiDi(t.assignee) + " " : "") + t.tipo + (t.closed ? " · chiuso ✔" : "")));
     ov.appendChild(head);
     ov.appendChild(el("p", "ftcSub", "Aperto da " + t.autore_nome + " · " + rotteTesto(t.tipo) + (t.assignee ? " · in carico a " + (t.assignee_nome || "?") : " · in attesa di presa in carico")));
     const posso = sonoFounder() || diMiaCompetenza(t);
@@ -681,7 +689,8 @@
     };
     th.appendChild(rowDi(t.autore_nome, t.testo, false, t.autore_pid === myPid()));
     (t.msgs || []).forEach((m) => {
-      const mia = m.pid ? m.pid === myPid() : (posso ? !!m.team : !m.team);
+      const mioNome = sonoFounder() ? (((cfg || {}).data || {}).founderName || "Founder") : ((mioMembro() || {}).nome || "\u0000");
+      const mia = m.pid ? m.pid === myPid() : String(m.da || "").indexOf(mioNome) === 0;
       th.appendChild(rowDi(m.da, m.testo, !!m.team, mia));
     });
     ov.appendChild(th);
