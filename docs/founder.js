@@ -100,6 +100,14 @@
     .ftcAzioni { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
     .ftcAzioni .ftGo, .ftcAzioni .ftDel { font-size: 12.5px; padding: 7px 11px; margin: 0; }
     .ftkStato { display: inline-block; border-radius: 99px; padding: 2px 9px; font-size: 11.5px; font-weight: 800; background: #FFF3C6; margin-left: 6px; }
+    .ftkVia { animation: ftkVia .55s ease forwards; }
+    @keyframes ftkVia { 40% { transform: rotate(-3deg) scale(.96); } 100% { transform: rotate(8deg) scale(.1); opacity: 0; } }
+    body.ftTeamRing .avatar.homeAvatar { box-shadow: 0 0 0 2.5px #FFD34D, 0 6px 14px -6px rgba(40,40,70,.5) !important; }
+    .ftCoronaB { border: 1.6px solid rgba(255,211,77,.85) !important; position: relative; }
+    .ftCoronaB::before { content: ""; position: absolute; top: -7px; left: 50%; width: 4px; height: 4px; border-radius: 50%; background: #FFD34D;
+      box-shadow: -26px 6px 0 -0.5px #FFD34D, -15px 1px 0 0 #FFD34D, -5px -2px 0 -1px #FFD34D, 5px -2px 0 0 #FFD34D, 15px 1px 0 -1px #FFD34D, 26px 6px 0 -0.5px #FFD34D;
+      filter: drop-shadow(0 0 2px rgba(255,211,77,.9)); pointer-events: none; }
+    .ftRoleTag { display: inline-block; margin-left: 6px; border-radius: 99px; padding: 1px 8px; font-size: 10.5px; font-weight: 800; background: #2A2620; color: #FFD34D; vertical-align: 1px; }
     .ftScheda { position: fixed; inset: 0; z-index: 995; background: rgba(40,30,15,.45); display: flex; align-items: center; justify-content: center; padding: 20px; }
     .ftSchedaNote { position: relative; width: min(84vw, 330px); border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1.5deg; }
     .ftSchedaNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
@@ -669,6 +677,20 @@
     c.appendChild(el("p", null, t.testo.slice(0, 90) + (t.testo.length > 90 ? "…" : "")));
     c.appendChild(el("p", "ftkMeta", "💬 " + (t.msgs || []).length + " messaggi — tocca per aprire il canale"));
     c.onclick = () => canale(t.id, contesto);
+    if (t.closed && (sonoFounder() || diMiaCompetenza(t))) {
+      const del = el("button", "ftDel", "🗑");
+      del.style.cssText = "float:right;margin-top:-4px;";
+      del.onclick = async (ev) => {
+        ev.stopPropagation();
+        c.classList.add("ftkVia");
+        setTimeout(async () => {
+          const s2 = sb();
+          if (s2) { const r2 = await s2.from("ftickets").delete().eq("id", t.id); if (r2 && r2.error) alert("⚠️ " + r2.error.message); }
+          await caricaFtk(); vistaSupport();
+        }, 560);
+      };
+      c.appendChild(del);
+    }
     return c;
   }
 
@@ -791,7 +813,33 @@
   setInterval(caricaAnnunci, 20000);
   setInterval(caricaFtk, 20000);
 
-  const agganci = () => { aggancioHome(); aggancioProfilo(); try { document.body.classList.toggle("ftSkin", sonoFounder()); } catch (e) {} };
+  function nomiSquadra() {
+    const out = [];
+    if (cfg && cfg.founder_pid) out.push([(((cfg || {}).data || {}).founderName || "Filippo Fagone"), "Founder & Solo Developer", true]);
+    team.forEach((m) => out.push([m.nome, m.ruolo || "Founder Team", false]));
+    return out;
+  }
+  function decoraChat() {
+    const squadra = nomiSquadra(); if (!squadra.length) return;
+    document.querySelectorAll(".chatWho:not([data-ftd])").forEach((w) => {
+      const testo = (w.textContent || "").trim();
+      const hit = squadra.find(([n]) => n && testo.indexOf(n) === 0);
+      w.dataset.ftd = "1";
+      if (!hit) return;
+      const [, ruolo, isF] = hit;
+      const tag = el("span", "ftRoleTag", (isF ? "👑 " : "") + ruolo);
+      w.appendChild(tag);
+      const bolla = w.parentElement && w.parentElement.querySelector(".chatMsg");
+      if (bolla) bolla.classList.add("ftCoronaB");
+    });
+  }
+  const agganci = () => {
+    aggancioHome(); aggancioProfilo(); decoraChat();
+    try {
+      document.body.classList.toggle("ftSkin", sonoFounder());
+      document.body.classList.toggle("ftTeamRing", !sonoFounder() && !!mioMembro());
+    } catch (e) {}
+  };
   new MutationObserver(agganci).observe(document.documentElement, { childList: true, subtree: true });
   setInterval(agganci, 1500);
   carica();
