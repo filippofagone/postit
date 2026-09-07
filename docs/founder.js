@@ -819,6 +819,19 @@
     const out = [];
     if (cfg && cfg.founder_pid) out.push([(((cfg || {}).data || {}).founderName || "Filippo Fagone"), "Founder & Solo Developer", true]);
     team.forEach((m) => out.push([m.nome, m.ruolo || "Founder Team", false]));
+    // riconoscimento per IMPRONTA: i personaggi dei gruppi (qualunque nome) dei pid della squadra
+    try {
+      const st = JSON.parse(localStorage.getItem("postit:v4") || "{}");
+      const perPid = new Map();
+      if (cfg && cfg.founder_pid) perPid.set(cfg.founder_pid, ["Founder & Solo Developer", true]);
+      team.forEach((m) => { if (m.pid) perPid.set(m.pid, [m.ruolo || "Founder Team", false]); });
+      (st.groups || []).forEach((g) => (g.users || []).forEach((u) => {
+        if (u.pid && perPid.has(u.pid)) {
+          const [ruolo, isF] = perPid.get(u.pid);
+          if (u.name && !out.some(([n]) => n === u.name)) out.push([u.name, ruolo, isF]);
+        }
+      }));
+    } catch (e) {}
     return out;
   }
   function decoraChat() {
@@ -840,6 +853,7 @@
     const squadra = nomiSquadra(); if (!squadra.length) return;
     document.querySelectorAll(".userCard:not([data-ftd])").forEach((card) => {
       card.dataset.ftd = "1";
+      card.classList.remove("ftMemFounder");
       const testo = (card.textContent || "").trim();
       const hit = squadra.find(([n]) => n && testo.indexOf(n) >= 0);
       if (!hit) return;
