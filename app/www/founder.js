@@ -85,6 +85,21 @@
     .ftkMsg { border-radius: 10px; padding: 7px 10px; margin: 5px 0; background: #F2EEE6; font-size: 13px; white-space: pre-wrap; }
     .ftkMsg.team { background: #2A2620; color: #FFD34D; }
     .ftkChiuso { opacity: .55; }
+    .ftcOvl { position: fixed; inset: 0; z-index: 994; background: #ECEEF3; display: flex; flex-direction: column; padding: 12px 14px calc(10px + env(safe-area-inset-bottom, 0px)); }
+    .ftcHead { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .ftcHead b { flex: 1; font-size: 15.5px; }
+    .ftcSub { font-size: 12px; opacity: .75; margin: 0 0 6px; }
+    .ftcThread { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding: 6px 2px; display: flex; flex-direction: column; gap: 8px; }
+    .ftcRow { display: flex; flex-direction: column; align-items: flex-start; }
+    .ftcRow.team { align-items: flex-end; }
+    .ftcChi { font-size: 11.5px; font-weight: 800; opacity: .75; padding: 0 6px; }
+    .ftcBolla { position: relative; max-width: 82%; border-radius: 12px; padding: 8px 12px; font-size: 13.5px; white-space: pre-wrap; background: #fff; box-shadow: 0 3px 8px -4px rgba(40,40,70,.3); }
+    .ftcRow.team .ftcBolla { background: #2A2620; color: #FFD34D; }
+    .ftcBar { display: flex; gap: 6px; margin-top: 6px; }
+    .ftcBar .ftInp { flex: 1; margin: 0; }
+    .ftcAzioni { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px; }
+    .ftcAzioni .ftGo, .ftcAzioni .ftDel { font-size: 12.5px; padding: 7px 11px; margin: 0; }
+    .ftkStato { display: inline-block; border-radius: 99px; padding: 2px 9px; font-size: 11.5px; font-weight: 800; background: #FFF3C6; margin-left: 6px; }
     .ftScheda { position: fixed; inset: 0; z-index: 995; background: rgba(40,30,15,.45); display: flex; align-items: center; justify-content: center; padding: 20px; }
     .ftSchedaNote { position: relative; width: min(84vw, 330px); border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1.5deg; }
     .ftSchedaNote::after { content: ""; position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; background: linear-gradient(to top left, transparent 49.5%, rgba(0,0,0,.22) 50%, rgba(0,0,0,.07) 100%); }
@@ -620,6 +635,13 @@
     await s.from("ftickets").upsert(Object.assign({}, t, { msgs }));
     await caricaFtk();
   }
+  async function aggiornaTicket(t, patch) {
+    const s = sb(); if (!s) return;
+    await s.from("ftickets").upsert(Object.assign({}, t, patch));
+    await caricaFtk();
+  }
+  const mioNomeTeam = () => sonoFounder() ? (((cfg || {}).data || {}).founderName || "Founder") + " 👑" : ((mioMembro() || {}).nome || "");
+  const mioIdTeam = () => sonoFounder() ? "FOUNDER" : ((mioMembro() || {}).id || null);
   async function chiudiTicket(t) {
     const s = sb(); if (!s) return;
     await s.from("ftickets").upsert(Object.assign({}, t, { closed: true }));
@@ -627,30 +649,87 @@
   }
   function cartaTicket(t, contesto) {
     const c = el("div", "ftkCard" + (t.closed ? " ftkChiuso" : ""));
-    c.appendChild(el("p", null, "🎫 " + t.tipo + (t.closed ? " · chiuso ✔" : "")));
+    c.style.cursor = "pointer";
+    const stato = t.closed ? "chiuso ✔" : t.assignee ? "in carico a " + (t.assignee_nome || "?") : "in attesa";
+    const tit = el("p", null, "🎫 " + t.tipo);
+    tit.appendChild(el("span", "ftkStato", stato));
+    c.appendChild(tit);
     c.appendChild(el("p", "ftkMeta", t.autore_nome + " · " + new Date(t.at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " · " + rotteTesto(t.tipo)));
-    c.appendChild(el("p", null, t.testo));
-    (t.msgs || []).forEach((m) => {
-      const mm = el("div", "ftkMsg" + (m.team ? " team" : ""));
-      mm.textContent = m.da + ": " + m.testo;
-      c.appendChild(mm);
-    });
-    const posso = contesto === "team" || t.autore_pid === myPid();
-    if (!t.closed && posso) {
-      const ri = el("input", "ftInp"); ri.placeholder = "Rispondi…";
-      const rb = el("button", "ftGo", "➤");
-      rb.onclick = async () => { if (ri.value.trim()) { await rispondiTicket(t, ri.value); vistaSupport(true); } };
-      if (contesto === "team") rb.onclick = async () => { if (ri.value.trim()) { await rispondiTicket(t, ri.value, true); vistaSupport(true); } };
-      c.append(ri, rb);
-      if (contesto === "team") {
-        const cb = el("button", "ftDel", "Chiudi ticket");
-        cb.style.marginLeft = "8px";
-        cb.onclick = async () => { await chiudiTicket(t); vistaSupport(true); };
-        c.appendChild(cb);
-      }
-    }
+    c.appendChild(el("p", null, t.testo.slice(0, 90) + (t.testo.length > 90 ? "…" : "")));
+    c.appendChild(el("p", "ftkMeta", "💬 " + (t.msgs || []).length + " messaggi — tocca per aprire il canale"));
+    c.onclick = () => canale(t.id, contesto);
     return c;
   }
+
+  function canale(tid, contesto) {
+    const t = ftk.find((x) => x.id === tid); if (!t) return;
+    const vecchio = document.querySelector(".ftcOvl"); if (vecchio) vecchio.remove();
+    const ov = el("div", "ftcOvl");
+    const head = el("div", "ftcHead");
+    const back = el("button", "ftBack", "‹");
+    back.onclick = () => { ov.remove(); vistaSupport(); };
+    head.append(back, el("b", null, "🎫 " + t.tipo + (t.closed ? " · chiuso ✔" : "")));
+    ov.appendChild(head);
+    ov.appendChild(el("p", "ftcSub", "Aperto da " + t.autore_nome + " · " + rotteTesto(t.tipo) + (t.assignee ? " · in carico a " + (t.assignee_nome || "?") : " · in attesa di presa in carico")));
+    const th = el("div", "ftcThread");
+    const rowDi = (chi, testo, team) => {
+      const r = el("div", "ftcRow" + (team ? " team" : ""));
+      r.appendChild(el("span", "ftcChi", chi));
+      r.appendChild(el("div", "ftcBolla", testo));
+      return r;
+    };
+    th.appendChild(rowDi(t.autore_nome, t.testo, false));
+    (t.msgs || []).forEach((m) => th.appendChild(rowDi(m.da, m.testo, !!m.team)));
+    ov.appendChild(th);
+    const team = contesto === "team";
+    if (team && !t.closed) {
+      const az = el("div", "ftcAzioni");
+      const mioId = mioIdTeam();
+      if (!t.assignee) {
+        const pr = el("button", "ftGo", "🙋 Prendi in carico");
+        pr.onclick = async () => { await aggiornaTicket(t, { assignee: mioId, assignee_nome: mioNomeTeam() }); canale(tid, contesto); };
+        az.appendChild(pr);
+      } else if (t.assignee === mioId) {
+        const asB = el("button", "ftGo", "👉 Assegna a…");
+        asB.onclick = () => {
+          const gia = ov.querySelector(".ftcLista"); if (gia) { gia.remove(); return; }
+          const li = el("div", "ftcAzioni ftcLista");
+          team2 = team; // no-op
+          (teamListaPerAssegnazione()).forEach(([id2, nome2]) => {
+            const bb = el("button", "ftGo", nome2);
+            bb.onclick = async () => { await aggiornaTicket(t, { assignee: id2, assignee_nome: nome2 }); canale(tid, contesto); };
+            li.appendChild(bb);
+          });
+          az.after(li);
+        };
+        const la = el("button", "ftDel", "🖐 Lascia il ticket");
+        la.onclick = async () => { await aggiornaTicket(t, { assignee: null, assignee_nome: "" }); canale(tid, contesto); };
+        az.append(asB, la);
+      }
+      const cb = el("button", "ftDel", "Chiudi ticket");
+      cb.onclick = async () => { await chiudiTicket(t); canale(tid, contesto); };
+      az.appendChild(cb);
+      ov.appendChild(az);
+    }
+    if (!t.closed && (team || t.autore_pid === myPid())) {
+      const bar = el("div", "ftcBar");
+      const ri = el("input", "ftInp"); ri.placeholder = "Scrivi nel canale…";
+      const rb = el("button", "ftGo", "➤");
+      const invia = async () => { if (ri.value.trim()) { await rispondiTicket(t, ri.value, team); canale(tid, contesto); } };
+      rb.onclick = invia;
+      ri.onkeydown = (e2) => { if (e2.key === "Enter") invia(); };
+      bar.append(ri, rb);
+      ov.appendChild(bar);
+    }
+    document.body.appendChild(ov);
+    th.scrollTop = 1e9;
+  }
+  function teamListaPerAssegnazione() {
+    const out = team.map((m) => [m.id, m.nome]);
+    if (cfg && cfg.founder_pid) out.unshift(["FOUNDER", (((cfg || {}).data || {}).founderName || "Founder") + " 👑"]);
+    return out;
+  }
+  let team2 = null;
   function vistaSupport() {
     const vecchio = document.querySelector(".ftkOvl"); if (vecchio) vecchio.remove();
     const ov = el("div", "ftAnnOvl ftkOvl");
