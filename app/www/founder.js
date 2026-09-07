@@ -212,6 +212,7 @@
     const head = el("div", "ftHead");
     const back = el("button", "ftBack", "‹"); back.onclick = () => { aperto = false; render(); };
     head.appendChild(back); head.appendChild(el("b", null, "👑 Founder Team"));
+    head.appendChild(el("span", "ftHint", FT_VER));
     ovl.appendChild(head);
 
     const fond = el("div", "ftCard");
@@ -582,10 +583,12 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
+  const FT_VER = "f129";
   const ROTTE = {
-    "Segnala problema": ["Head of User Support", "Customer Support"],
+    "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
-    "Idee per l'app": ["ALL"],
+    "Segnala Utenti": ["FOUNDER", "Head of App Security", "App Security"],
+    "Idee per l'app": ["FOUNDER", "ALL"],
   };
   const rotteTesto = (t) => (ROTTE[t] || []).map((r) => "@" + (r === "FOUNDER" ? "Founder & Solo Developer" : r === "ALL" ? "Founder Team" : r)).join(" ");
   let ftk = [];
@@ -753,7 +756,7 @@
     n.appendChild(el("p", "ftHint", "Scrivi al Founder Team: il messaggio arriva ai ruoli giusti."));
     Object.keys(ROTTE).forEach((tipo) => {
       const tb = el("button", "ftkTipo");
-      tb.appendChild(document.createTextNode(tipo === "Segnala problema" ? "🛠 " + tipo : tipo === "Segnala Staff" ? "🚨 " + tipo : "💡 " + tipo));
+      tb.appendChild(document.createTextNode(tipo === "Segnala problema" ? "🛠 " + tipo : tipo === "Segnala Staff" ? "🚨 " + tipo : tipo === "Segnala Utenti" ? "🚫 " + tipo : "💡 " + tipo));
       tb.appendChild(el("small", null, rotteTesto(tipo)));
       tb.onclick = () => {
         const gia = n.querySelector(".ftkNuovo"); if (gia) gia.remove();
