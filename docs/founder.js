@@ -103,10 +103,12 @@
     .ftkVia { animation: ftkVia .55s ease forwards; }
     @keyframes ftkVia { 40% { transform: rotate(-3deg) scale(.96); } 100% { transform: rotate(8deg) scale(.1); opacity: 0; } }
     body.ftTeamRing .avatar.homeAvatar { box-shadow: 0 0 0 2.5px #FFD34D, 0 6px 14px -6px rgba(40,40,70,.5) !important; }
-    .ftCoronaB { border: 1.6px solid rgba(255,211,77,.85) !important; position: relative; }
-    .ftCoronaB::before { content: ""; position: absolute; top: -7px; left: 50%; width: 4px; height: 4px; border-radius: 50%; background: #FFD34D;
-      box-shadow: -26px 6px 0 -0.5px #FFD34D, -15px 1px 0 0 #FFD34D, -5px -2px 0 -1px #FFD34D, 5px -2px 0 0 #FFD34D, 15px 1px 0 -1px #FFD34D, 26px 6px 0 -0.5px #FFD34D;
-      filter: drop-shadow(0 0 2px rgba(255,211,77,.9)); pointer-events: none; }
+    .ftStelline { position: relative; overflow: visible !important; }
+    .ftStelline::before { content: "\2726"; position: absolute; top: -10px; left: -8px; font-size: 20px; color: #FFD34D; text-shadow: 0 0 4px rgba(255,211,77,.95); pointer-events: none; z-index: 3; }
+    .ftStelline::after { content: "\2726"; position: absolute; bottom: -8px; right: -6px; font-size: 11px; color: #FFD34D; text-shadow: 0 0 3px rgba(255,211,77,.95); pointer-events: none; z-index: 3; }
+    .ftCoronaMem { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+    .ftCoronaMem i { position: absolute; font-style: normal; color: #FFD34D; text-shadow: 0 0 5px rgba(255,211,77,.95); transform: translate(-50%, -50%); }
+    .userCard.ftMemFounder, .userCard.ftMemFounder .hint { color: #FFD34D !important; }
     .ftRoleTag { display: inline-block; margin-left: 6px; border-radius: 99px; padding: 1px 8px; font-size: 10.5px; font-weight: 800; background: #2A2620; color: #FFD34D; vertical-align: 1px; }
     .ftScheda { position: fixed; inset: 0; z-index: 995; background: rgba(40,30,15,.45); display: flex; align-items: center; justify-content: center; padding: 20px; }
     .ftSchedaNote { position: relative; width: min(84vw, 330px); border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1.5deg; }
@@ -830,11 +832,37 @@
       const tag = el("span", "ftRoleTag", (isF ? "👑 " : "") + ruolo);
       w.appendChild(tag);
       const bolla = w.parentElement && w.parentElement.querySelector(".chatMsg");
-      if (bolla) bolla.classList.add("ftCoronaB");
+      if (bolla) bolla.classList.add("ftStelline");
+    });
+  }
+  const CORONA7 = [[14, 93], [3, 72], [4, 45], [12, 17], [50, 4], [88, 15], [95, 52]];
+  function decoraMembri() {
+    const squadra = nomiSquadra(); if (!squadra.length) return;
+    document.querySelectorAll(".userCard:not([data-ftd])").forEach((card) => {
+      card.dataset.ftd = "1";
+      const testo = (card.textContent || "").trim();
+      const hit = squadra.find(([n]) => n && testo.indexOf(n) >= 0);
+      if (!hit) return;
+      const [, ruolo, isF] = hit;
+      if (isF) {
+        card.style.setProperty("background", "#2A2620", "important");
+        card.classList.add("ftMemFounder");
+      } else {
+        card.style.setProperty("background", coloreRuolo(ruolo), "important");
+      }
+      if (getComputedStyle(card).position === "static") card.style.position = "relative";
+      const cor = el("span", "ftCoronaMem");
+      CORONA7.forEach(([x, y], i2) => {
+        const st = el("i", null, "\u2726");
+        st.style.left = x + "%"; st.style.top = y + "%";
+        st.style.fontSize = (i2 === 4 ? 17 : 11 + (i2 % 3) * 2) + "px";
+        cor.appendChild(st);
+      });
+      card.appendChild(cor);
     });
   }
   const agganci = () => {
-    aggancioHome(); aggancioProfilo(); decoraChat();
+    aggancioHome(); aggancioProfilo(); decoraChat(); decoraMembri();
     try {
       document.body.classList.toggle("ftSkin", sonoFounder());
       document.body.classList.toggle("ftTeamRing", !sonoFounder() && !!mioMembro());
