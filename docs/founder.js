@@ -91,7 +91,7 @@
     .ftcSub { font-size: 12px; opacity: .75; margin: 0 0 6px; }
     .ftcThread { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding: 6px 2px; display: flex; flex-direction: column; gap: 8px; }
     .ftcRow { display: flex; flex-direction: column; align-items: flex-start; }
-    .ftcRow.team { align-items: flex-end; }
+    .ftcRow.mia { align-items: flex-end; }
     .ftcChi { font-size: 11.5px; font-weight: 800; opacity: .75; padding: 0 6px; }
     .ftcBolla { position: relative; max-width: 82%; border-radius: 12px; padding: 8px 12px; font-size: 13.5px; white-space: pre-wrap; background: #fff; box-shadow: 0 3px 8px -4px rgba(40,40,70,.3); }
     .ftcRow.team .ftcBolla { background: #2A2620; color: #FFD34D; }
@@ -631,7 +631,7 @@
   async function rispondiTicket(t, testo, team) {
     const s = sb(); if (!s || !testo.trim()) return;
     const chi = team ? (sonoFounder() ? (((cfg || {}).data || {}).founderName || "Founder") + " 👑" : (mioMembro() || {}).nome + " · " + ((mioMembro() || {}).ruolo || "")) : t.autore_nome;
-    const msgs = [...(t.msgs || []), { da: chi, testo: testo.trim(), at: new Date().toISOString(), team: !!team }];
+    const msgs = [...(t.msgs || []), { da: chi, testo: testo.trim(), at: new Date().toISOString(), team: !!team, pid: myPid() || null }];
     await s.from("ftickets").upsert(Object.assign({}, t, { msgs }));
     await caricaFtk();
   }
@@ -671,17 +671,21 @@
     head.append(back, el("b", null, "🎫 " + t.tipo + (t.closed ? " · chiuso ✔" : "")));
     ov.appendChild(head);
     ov.appendChild(el("p", "ftcSub", "Aperto da " + t.autore_nome + " · " + rotteTesto(t.tipo) + (t.assignee ? " · in carico a " + (t.assignee_nome || "?") : " · in attesa di presa in carico")));
+    const posso = sonoFounder() || diMiaCompetenza(t);
     const th = el("div", "ftcThread");
-    const rowDi = (chi, testo, team) => {
-      const r = el("div", "ftcRow" + (team ? " team" : ""));
+    const rowDi = (chi, testo, teamMsg, mia) => {
+      const r = el("div", "ftcRow" + (teamMsg ? " team" : "") + (mia ? " mia" : ""));
       r.appendChild(el("span", "ftcChi", chi));
       r.appendChild(el("div", "ftcBolla", testo));
       return r;
     };
-    th.appendChild(rowDi(t.autore_nome, t.testo, false));
-    (t.msgs || []).forEach((m) => th.appendChild(rowDi(m.da, m.testo, !!m.team)));
+    th.appendChild(rowDi(t.autore_nome, t.testo, false, t.autore_pid === myPid()));
+    (t.msgs || []).forEach((m) => {
+      const mia = m.pid ? m.pid === myPid() : (posso ? !!m.team : !m.team);
+      th.appendChild(rowDi(m.da, m.testo, !!m.team, mia));
+    });
     ov.appendChild(th);
-    const team = contesto === "team";
+    const team = posso;
     if (team && !t.closed) {
       const az = el("div", "ftcAzioni");
       const mioId = mioIdTeam();
