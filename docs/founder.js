@@ -180,6 +180,24 @@
     return p;
   }
 
+  let vestitoAvvisato = false;
+  function autoVesti() {
+    try {
+      const st = JSON.parse(localStorage.getItem("postit:v4") || "{}");
+      if (!st.profile) return;
+      let nome = null, colore = null, emoji = null;
+      if (sonoFounder()) { nome = (((cfg || {}).data || {}).founderName || "Filippo Fagone"); colore = "#2A2620"; emoji = "👑"; }
+      else { const io5 = mioMembro(); if (io5) { nome = io5.nome; colore = coloreRuolo(io5.ruolo || ""); const pn = (io5.deco || {}).pin; emoji = pn && pn !== "classic" ? pn : null; } }
+      if (!nome) return;
+      const diverso = st.profile.name !== nome || (colore && st.profile.color !== colore) || (emoji && st.profile.emoji !== emoji);
+      if (!diverso) return;
+      st.profile.name = nome;
+      if (colore) st.profile.color = colore;
+      if (emoji) st.profile.emoji = emoji;
+      localStorage.setItem("postit:v4", JSON.stringify(st));
+      if (!vestitoAvvisato) { vestitoAvvisato = true; alert("🖤 Vestizione Founder Team applicata: «" + nome + "». Chiudi e riapri l'app per vederla ovunque ✨"); }
+    } catch (e) {}
+  }
   function vesti(nome, colore, emoji) {
     try {
       const st = JSON.parse(localStorage.getItem("postit:v4") || "{}");
@@ -896,7 +914,7 @@
     });
   }
   const agganci = () => {
-    aggancioHome(); aggancioProfilo(); decoraChat(); decoraMembri();
+    aggancioHome(); aggancioProfilo(); decoraChat(); decoraMembri(); autoVesti();
     try {
       document.body.classList.toggle("ftSkin", sonoFounder());
       document.body.classList.toggle("ftTeamRing", !sonoFounder() && !!mioMembro());
