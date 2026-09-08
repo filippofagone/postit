@@ -76,7 +76,11 @@
     body.ftSkin .profModal .hint { color: rgba(242,231,207,.75); }
     body.ftSkin .profModal input, body.ftSkin .profModal textarea, body.ftSkin .profModal select { background: rgba(255,255,255,.94); color: #26221C; }
     body.ftSkin .profModal .ftFounderBadge { border: 1.5px solid #FFD34D; }
-    body.ftSkin .avatar.homeAvatar { background: #2A2620 !important; box-shadow: 0 0 0 2.5px #FFD34D, 0 6px 14px -6px rgba(40,40,70,.5); }
+    body.ftSkin .avatar.homeAvatar, body.ftSkin button.avatar { background: #2A2620 !important; box-shadow: 0 0 0 2.5px #FFD34D, 0 6px 14px -6px rgba(40,40,70,.5) !important; }
+    body.ftTeamRing button.avatar { box-shadow: 0 0 0 2.5px #FFD34D, 0 6px 14px -6px rgba(40,40,70,.5) !important; }
+    .chatMsg.ftStelline { clip-path: none !important; }
+    .chatMsg.ftStelline .fold { display: none; }
+    .chatMsg.ftMsgFounder { background: #2A2620 !important; color: #FFD34D !important; }
     .ftkTipo { display: block; width: 100%; border: 0; border-radius: 12px; padding: 11px 12px; margin: 6px 0; font: inherit; font-weight: 800; text-align: left; background: #fff; box-shadow: 0 3px 8px -4px rgba(40,40,70,.3); }
     .ftkTipo small { display: block; font-weight: 600; font-size: 11.5px; opacity: .7; }
     .ftkCard { background: #fff; border-radius: 12px; padding: 10px 12px; margin: 7px 0; border-left: 8px solid #FFD34D; }
@@ -141,6 +145,7 @@
     localStorage.setItem(LOCK, JSON.stringify({ memberId: membro.id, at: Date.now() }));
     try { await s.from("team").upsert(Object.assign({}, membro, { pid: myPid() || membro.pid || null })); } catch (e) {}
     await carica(); render();
+    vesti(membro.nome, coloreRuolo(membro.ruolo || ""), (membro.deco || {}).pin && membro.deco.pin !== "classic" ? membro.deco.pin : null);
     return true;
   }
   async function salvaMio(m, bio, deco) {
@@ -175,10 +180,22 @@
     return p;
   }
 
+  function vesti(nome, colore, emoji) {
+    try {
+      const st = JSON.parse(localStorage.getItem("postit:v4") || "{}");
+      if (!st.profile) return;
+      st.profile.name = nome;
+      if (colore) st.profile.color = colore;
+      if (emoji) st.profile.emoji = emoji;
+      localStorage.setItem("postit:v4", JSON.stringify(st));
+      alert("🖤 Profilo vestito da Founder Team: «" + nome + "». Chiudi e riapri l'app per completare la vestizione ✨");
+    } catch (e) {}
+  }
   async function rivendica() {
     const s = sb(); if (!s || !myPid()) return alert("Apri prima l'app col tuo profilo.");
     await s.from("fondazione").upsert({ id: "cfg", founder_pid: myPid() });
     await carica(); render();
+    vesti((((cfg || {}).data || {}).founderName || "Filippo Fagone"), "#2A2620", "👑");
   }
 
   async function salvaMembro(id, nome, ruoli, principale, permessi, lavoro, bio, deco) {
@@ -229,6 +246,7 @@
     if (cfg && cfg.founder_pid) {
       fond.appendChild(el("span", "ftFounderBadge", "👑 Founder & Solo Developer"));
       fond.appendChild(el("p", "ftHint", sonoFounder() ? "Sei tu. Controllo assoluto attivo su questo profilo." : "L'app è creata e diretta dal Founder."));
+      if (sonoFounder()) { const vb = el("button", "ftGo", "🖤 Vesti il profilo Founder"); vb.onclick = () => vesti((((cfg || {}).data || {}).founderName || "Filippo Fagone"), "#2A2620", "👑"); fond.appendChild(vb); }
     } else {
       fond.appendChild(el("h4", null, "Titolo di Founder non ancora rivendicato"));
       const b = el("button", "ftGo", "👑 Rivendica (una sola volta, per sempre)"); b.onclick = rivendica;
@@ -842,13 +860,15 @@
       w.dataset.ftd = "1";
       if (!hit) return;
       const [, ruolo, isF] = hit;
+      const gr = w.querySelector(".chatRole"); if (gr) gr.remove();
+      w.childNodes.forEach((nd) => { if (nd.nodeType === 3 && /\|/.test(nd.textContent)) nd.textContent = nd.textContent.replace(/\s*\|\s*$/, " "); });
       const tag = el("span", "ftRoleTag", (isF ? "👑 " : "") + ruolo);
       w.appendChild(tag);
       const bolla = w.parentElement && w.parentElement.querySelector(".chatMsg");
-      if (bolla) bolla.classList.add("ftStelline");
+      if (bolla) { bolla.classList.add("ftStelline"); if (isF) bolla.classList.add("ftMsgFounder"); }
     });
   }
-  const CORONA7 = [[14, 93], [3, 72], [4, 45], [12, 17], [50, 4], [88, 15], [95, 52]];
+  const CORONA7 = [[4, 24], [3, 54], [13, 84], [50, 95], [87, 84], [97, 54], [96, 24]];
   function decoraMembri() {
     const squadra = nomiSquadra(); if (!squadra.length) return;
     document.querySelectorAll(".userCard:not([data-ftd])").forEach((card) => {
