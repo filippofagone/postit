@@ -879,6 +879,7 @@
       if (!hit) return;
       const [, ruolo, isF] = hit;
       const gr = w.querySelector(".chatRole"); if (gr) gr.remove();
+      w.childNodes.forEach(pulisciCoda);
       w.childNodes.forEach((nd) => { if (nd.nodeType === 3 && /\|/.test(nd.textContent)) nd.textContent = nd.textContent.replace(/\s*\|\s*$/, " "); });
       const tag = el("span", "ftRoleTag", (isF ? "👑 " : "") + ruolo);
       w.appendChild(tag);
@@ -886,6 +887,8 @@
       if (bolla) { bolla.classList.add("ftStelline"); if (isF) bolla.classList.add("ftMsgFounder"); }
     });
   }
+  const RX_EMOJI_CODA = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\s]+$/u;
+  const pulisciCoda = (nodo) => { if (nodo && nodo.nodeType === 3 && RX_EMOJI_CODA.test(nodo.textContent)) nodo.textContent = nodo.textContent.replace(RX_EMOJI_CODA, "") + " "; };
   const CORONA7 = [[4, 24], [3, 54], [13, 84], [50, 95], [87, 84], [97, 54], [96, 24]];
   function decoraMembri() {
     const squadra = nomiSquadra(); if (!squadra.length) return;
@@ -902,6 +905,8 @@
       } else {
         card.style.setProperty("background", coloreRuolo(ruolo), "important");
       }
+      card.querySelectorAll("span:not(.uEmoji):not(.hint)").forEach((sp) => sp.childNodes.forEach(pulisciCoda));
+      card.childNodes.forEach(pulisciCoda);
       if (getComputedStyle(card).position === "static") card.style.position = "relative";
       const cor = el("span", "ftCoronaMem");
       CORONA7.forEach(([x, y], i2) => {
