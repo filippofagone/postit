@@ -113,6 +113,9 @@
     .ftCoronaMem { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
     .ftCoronaMem i { position: absolute; font-style: normal; color: #FFD34D; text-shadow: 0 0 5px rgba(255,211,77,.95); transform: translate(-50%, -50%); }
     .userCard.ftMemFounder, .userCard.ftMemFounder .hint { color: #FFD34D !important; }
+    .userCard.ftMemFT { height: auto !important; min-height: 100px; padding-bottom: 12px !important; overflow: visible; }
+    .ftPillCard { display: inline-block !important; background: rgba(42,38,32,.88) !important; color: #FFD34D !important; border-radius: 99px; padding: 2px 9px !important; font-size: 10px !important; font-weight: 800 !important; line-height: 1.2 !important; max-width: 94%; white-space: normal !important; opacity: 1 !important; }
+    .ftPillCard.oro { background: #FFD34D !important; color: #2A2620 !important; }
     .ftRoleTag { display: inline-block; margin-left: 6px; border-radius: 99px; padding: 1px 8px; font-size: 10.5px; font-weight: 800; background: #2A2620; color: #FFD34D; vertical-align: 1px; }
     .ftScheda { position: fixed; inset: 0; z-index: 995; background: rgba(40,30,15,.45); display: flex; align-items: center; justify-content: center; padding: 20px; }
     .ftSchedaNote { position: relative; width: min(84vw, 330px); border-radius: 5px; padding: 30px 18px 16px; box-shadow: 0 18px 40px -12px rgba(30,18,5,.6); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); rotate: -1.5deg; }
@@ -629,7 +632,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f141";
+  const FT_VER = "f142";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -949,8 +952,9 @@
       card.querySelectorAll("span:not(.uEmoji):not(.hint)").forEach((sp) => sp.childNodes.forEach(pulisciCoda));
       card.childNodes.forEach(pulisciCoda);
       viaCorone(card, ".uEmoji");
+      card.classList.add("ftMemFT");
       const ruoloEl = card.querySelector(".uRole");
-      if (ruoloEl) { ruoloEl.textContent = (isF ? "👑 " : "✨ ") + ruolo; ruoloEl.style.color = isF ? "#FFD34D" : "#2A2620"; ruoloEl.style.fontWeight = "800"; ruoloEl.style.opacity = "1"; }
+      if (ruoloEl) { ruoloEl.textContent = "★ " + ruolo + " ★"; ruoloEl.classList.add("ftPillCard"); if (isF) ruoloEl.classList.add("oro"); }
 
       if (getComputedStyle(card).position === "static") card.style.position = "relative";
       const cor = el("span", "ftCoronaMem");
