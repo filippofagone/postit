@@ -629,7 +629,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f129";
+  const FT_VER = "f137";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -889,6 +889,12 @@
   }
   const RX_EMOJI_CODA = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\s]+$/u;
   const pulisciCoda = (nodo) => { if (nodo && nodo.nodeType === 3 && RX_EMOJI_CODA.test(nodo.textContent)) nodo.textContent = nodo.textContent.replace(RX_EMOJI_CODA, "") + " "; };
+  const viaCorone = (radice, salva) => { // toglie OGNI 👑 dai testi (tranne l'emoji grande del profilo)
+    const w = document.createTreeWalker(radice, NodeFilter.SHOW_TEXT);
+    let nd; const da = [];
+    while ((nd = w.nextNode())) { if (nd.parentElement && !nd.parentElement.closest(salva) && /👑/.test(nd.textContent)) da.push(nd); }
+    da.forEach((x) => { x.textContent = x.textContent.replace(/\s*👑\s*/g, " "); });
+  };
   const CORONA7 = [[4, 24], [3, 54], [13, 84], [50, 95], [87, 84], [97, 54], [96, 24]];
   function decoraMembri() {
     const squadra = nomiSquadra(); if (!squadra.length) return;
@@ -907,6 +913,7 @@
       }
       card.querySelectorAll("span:not(.uEmoji):not(.hint)").forEach((sp) => sp.childNodes.forEach(pulisciCoda));
       card.childNodes.forEach(pulisciCoda);
+      viaCorone(card, ".uEmoji");
       if (getComputedStyle(card).position === "static") card.style.position = "relative";
       const cor = el("span", "ftCoronaMem");
       CORONA7.forEach(([x, y], i2) => {
