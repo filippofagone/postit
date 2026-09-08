@@ -629,7 +629,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f140";
+  const FT_VER = "f141";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -949,6 +949,8 @@
       card.querySelectorAll("span:not(.uEmoji):not(.hint)").forEach((sp) => sp.childNodes.forEach(pulisciCoda));
       card.childNodes.forEach(pulisciCoda);
       viaCorone(card, ".uEmoji");
+      const ruoloEl = card.querySelector(".uRole");
+      if (ruoloEl) { ruoloEl.textContent = (isF ? "👑 " : "✨ ") + ruolo; ruoloEl.style.color = isF ? "#FFD34D" : "#2A2620"; ruoloEl.style.fontWeight = "800"; ruoloEl.style.opacity = "1"; }
 
       if (getComputedStyle(card).position === "static") card.style.position = "relative";
       const cor = el("span", "ftCoronaMem");
