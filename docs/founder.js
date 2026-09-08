@@ -629,7 +629,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f138";
+  const FT_VER = "f139";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -895,6 +895,20 @@
     while ((nd = w.nextNode())) { if (nd.parentElement && !nd.parentElement.closest(salva) && /👑/.test(nd.textContent)) da.push(nd); }
     da.forEach((x) => { x.textContent = x.textContent.replace(/\s*👑\s*/g, " "); });
   };
+  function decoraScheda() {
+    // scheda del membro (Chi sono / Come posso aiutarti): il chip "Staff/Admin" diventa il ruolo del Founder Team
+    const squadra = nomiSquadra(); if (!squadra.length) return;
+    document.querySelectorAll(".modal .atList .chip.on:not([data-ftd])").forEach((chip) => {
+      chip.dataset.ftd = "1";
+      const modal = chip.closest(".modal"); if (!modal) return;
+      const testo = (modal.textContent || "");
+      const hit = squadra.find(([n]) => n && testo.indexOf(n) >= 0);
+      if (!hit) return;
+      const [, ruolo, isF] = hit;
+      chip.textContent = (isF ? "👑 " : "✨ ") + ruolo;
+      chip.style.background = "#2A2620"; chip.style.color = "#FFD34D";
+    });
+  }
   const CORONA7 = [[4, 24], [3, 54], [13, 84], [50, 95], [87, 84], [97, 54], [96, 24]];
   function decoraMembri() {
     const squadra = nomiSquadra(); if (!squadra.length) return;
@@ -928,7 +942,7 @@
     });
   }
   const agganci = () => {
-    aggancioHome(); aggancioProfilo(); decoraChat(); decoraMembri(); autoVesti();
+    aggancioHome(); aggancioProfilo(); decoraChat(); decoraMembri(); decoraScheda(); autoVesti();
     try {
       document.body.classList.toggle("ftSkin", sonoFounder());
       document.body.classList.toggle("ftTeamRing", !sonoFounder() && !!mioMembro());
