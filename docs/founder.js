@@ -629,7 +629,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f139";
+  const FT_VER = "f140";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -895,6 +895,27 @@
     while ((nd = w.nextNode())) { if (nd.parentElement && !nd.parentElement.closest(salva) && /👑/.test(nd.textContent)) da.push(nd); }
     da.forEach((x) => { x.textContent = x.textContent.replace(/\s*👑\s*/g, " "); });
   };
+  function riaffermaEtichette() {
+    const squadra = nomiSquadra(); if (!squadra.length) return;
+    document.querySelectorAll(".userCard[data-ftd]").forEach((card) => {
+      const testo = (card.textContent || "");
+      const hit = squadra.find(([n]) => n && testo.indexOf(n) >= 0);
+      if (!hit) return;
+      const [, ruolo, isF] = hit;
+      const h = card.querySelector(".hint");
+      const voglio = (isF ? "👑 " : "") + ruolo;
+      if (h && h.textContent !== voglio) { h.textContent = voglio; if (isF) h.style.color = "#FFD34D"; h.style.fontWeight = "800"; }
+    });
+    document.querySelectorAll(".modal .atList .chip.on").forEach((chip) => {
+      const modal = chip.closest(".modal"); if (!modal) return;
+      const testo = (modal.textContent || "");
+      const hit = squadra.find(([n]) => n && testo.indexOf(n) >= 0);
+      if (!hit) return;
+      const [, ruolo, isF] = hit;
+      const voglio = (isF ? "👑 " : "✨ ") + ruolo;
+      if (chip.textContent !== voglio) { chip.textContent = voglio; chip.style.background = "#2A2620"; chip.style.color = "#FFD34D"; }
+    });
+  }
   function decoraScheda() {
     // scheda del membro (Chi sono / Come posso aiutarti): il chip "Staff/Admin" diventa il ruolo del Founder Team
     const squadra = nomiSquadra(); if (!squadra.length) return;
@@ -928,8 +949,7 @@
       card.querySelectorAll("span:not(.uEmoji):not(.hint)").forEach((sp) => sp.childNodes.forEach(pulisciCoda));
       card.childNodes.forEach(pulisciCoda);
       viaCorone(card, ".uEmoji");
-      const hintEl = card.querySelector(".hint");
-      if (hintEl) { hintEl.textContent = (isF ? "👑 " : "") + ruolo; if (isF) hintEl.style.color = "#FFD34D"; hintEl.style.fontWeight = "800"; }
+
       if (getComputedStyle(card).position === "static") card.style.position = "relative";
       const cor = el("span", "ftCoronaMem");
       CORONA7.forEach(([x, y], i2) => {
@@ -942,7 +962,7 @@
     });
   }
   const agganci = () => {
-    aggancioHome(); aggancioProfilo(); decoraChat(); decoraMembri(); decoraScheda(); autoVesti();
+    aggancioHome(); aggancioProfilo(); decoraChat(); decoraMembri(); decoraScheda(); riaffermaEtichette(); autoVesti();
     try {
       document.body.classList.toggle("ftSkin", sonoFounder());
       document.body.classList.toggle("ftTeamRing", !sonoFounder() && !!mioMembro());
