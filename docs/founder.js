@@ -633,7 +633,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f144";
+  const FT_VER = "f145";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -934,7 +934,7 @@
       chip.style.background = "#2A2620"; chip.style.color = "#FFD34D";
     });
   }
-  const CORONA7 = [[4, 30], [3, 58], [11, 87], [50, 96], [89, 87], [97, 58], [96, 30]];
+  const CORONA7 = [[4, 34], [3, 62], [10, 91], [50, 99], [90, 91], [97, 62], [96, 34]];
   function decoraMembri() {
     const squadra = nomiSquadra(); if (!squadra.length) return;
     document.querySelectorAll(".userCard:not([data-ftd])").forEach((card) => {
