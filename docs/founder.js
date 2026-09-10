@@ -633,7 +633,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f146";
+  const FT_VER = "f147";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -684,13 +684,14 @@
   async function rispondiTicket(t, testo, team) {
     const s = sb(); if (!s || !testo.trim()) return;
     const chi = team ? (sonoFounder() ? (((cfg || {}).data || {}).founderName || "Founder") + " 👑" : (mioMembro() || {}).nome + " · " + ((mioMembro() || {}).ruolo || "")) : t.autore_nome;
-    const msgs = [...(t.msgs || []), { da: chi, testo: testo.trim(), at: new Date().toISOString(), team: !!team, pid: myPid() || null }];
-    await s.from("ftickets").upsert(Object.assign({}, t, { msgs }));
+    const fresco = ftk.find((x) => x.id === t.id) || t;
+    const msgs = [...(fresco.msgs || []), { da: chi, testo: testo.trim(), at: new Date().toISOString(), team: !!team, pid: myPid() || null }];
+    await s.from("ftickets").upsert({ id: t.id, msgs });
     await caricaFtk();
   }
   async function aggiornaTicket(t, patch) {
     const s = sb(); if (!s) return;
-    const r = await s.from("ftickets").upsert(Object.assign({}, t, patch));
+    const r = await s.from("ftickets").upsert(Object.assign({ id: t.id }, patch));
     if (r && r.error) { alert("⚠️ Il database ha rifiutato: " + r.error.message + "\n(Se parla di colonne mancanti, esegui postit-supabase-v10e-founder.sql)"); return; }
     await caricaFtk();
   }
@@ -705,7 +706,8 @@
   };
   async function chiudiTicket(t) {
     const s = sb(); if (!s) return;
-    await s.from("ftickets").upsert(Object.assign({}, t, { closed: true }));
+    const r = await s.from("ftickets").upsert({ id: t.id, closed: true });
+    if (r && r.error) alert("⚠️ " + r.error.message);
     await caricaFtk();
   }
   function cartaTicket(t, contesto) {
