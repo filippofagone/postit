@@ -350,6 +350,10 @@
     }
 
     ovl.classList.add("sughero");
+    const reg = el("button", "ftBtn", "📜 Rivisita il regolamento");
+    reg.style.margin = "12px 0 0";
+    reg.onclick = () => regole(true);
+    ovl.appendChild(reg);
     const sup = el("button", "ftBtn", "🎫 Founder Team Support");
     sup.style.margin = "12px 0 4px";
     sup.onclick = async () => { await caricaFtk(); vistaSupport(); };
@@ -748,7 +752,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f160";
+  const FT_VER = "f161";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -1048,8 +1052,8 @@
     document.body.appendChild(ov);
   }
   const REGOLE_OK = "postit:regoleOk";
-  function regole() {
-    if (localStorage.getItem(REGOLE_OK)) return;
+  function regole(rilettura) {
+    if (!rilettura && localStorage.getItem(REGOLE_OK)) return;
     let profOk = false;
     try { const st7 = JSON.parse(localStorage.getItem("postit:v4") || "{}"); profOk = !!(st7.profile && st7.profile.id); } catch (e) {}
     if (!profOk) return;
@@ -1061,6 +1065,15 @@
     scroll.innerHTML = '<h2 style="margin:0 0 8px;color:#FFD34D;">Benvenuto su Post-It! 👋</h2>\n<p>Prima di cominciare la tua esperienza, ti invitiamo a leggere alcune regole fondamentali da rispettare.</p>\n<p>Sarai libero di parlare di qualsiasi cosa nei tuoi gruppi personali.<br>Tuttavia, se un utente dovesse segnalarti per una delle seguenti violazioni, incorrerai in sanzioni severe.</p>\n<p><b style="color:#FF8A80;">Violazioni gravi:</b><br>– Razzismo<br>– Omotransfobia<br>– Incitazione a qualsiasi atto violento o discriminatorio nei confronti di terzi<br>– Apologia di persone e/o ideali potenzialmente dannosi per la comunità<br>– Hacking<br>– Pedofilia<br>– Discriminazione di qualsiasi tipo</p>\n<p><b>Punizione per violazioni gravi:</b> Ban permanente.</p>\n<p><b style="color:#FFB74D;">Violazioni borderline:</b><br>– Insulti<br>– Minacce di qualsiasi tipo<br>– Qualsiasi atto che possa ledere l\'onore o la salute mentale e fisica di una persona</p>\n<p><b>Punizione per violazioni borderline:</b> Strike, flag o ban temporaneo, a seconda della gravità.</p>\n<p><b style="color:#FFD34D;">Glossario delle sanzioni:</b></p>\n<p><b>– Ban:</b> Allontanamento dalla piattaforma, che può essere temporaneo o permanente a seconda della gravità dell\'infrazione. Entrambe le tipologie di ban possono essere annullate inviando un ricorso (appello) al Founder Team, qualora questo venga esaminato e accettato.</p>\n<p><b>– Strike:</b> Ammonizioni formali assegnate in caso di violazioni borderline. Si possono accumulare un massimo di 3 strike, dopodiché si procederà al ban (temporaneo o permanente) in base alla gravità complessiva delle violazioni commesse.</p>\n<p><b>– Flag:</b> Bandierine rosse visibili sul profilo. Servono a segnalare agli altri membri della community di prestare attenzione, evidenziando che l\'utente ha già dei precedenti.</p>\n<p>Ci teniamo a specificare che il nostro team prenderà provvedimenti soltanto nel caso in cui venga inviata una segnalazione ufficiale.</p>\n<p><b style="color:#FFD34D;">Nota del Team:</b><br>Il Founder Team si riserva il diritto di prendere provvedimenti — sia a seguito di una segnalazione diretta sia di propria iniziativa — anche nei confronti di comportamenti non espressamente elencati tra le violazioni, qualora siano ritenuti inopportuni, dannosi o contrari allo spirito della piattaforma.</p>\n<p>Post-It è pensato per gruppi di amici e aziende: per questo motivo ognuno è libero di gestire la propria community applicando le proprie regole interne.<br>Tuttavia, le norme sopra elencate restano valide per l\'intera piattaforma e saremo costretti a intervenire in caso di infrazione.</p>\n<p>Qualora avessi bisogno di chiarire dubbi, segnalare problemi o utenti, o semplicemente esprimere un\'opinione sull\'app, potrai aprire un ticket nella sezione «Conosci il Founder Team», selezionando la categoria più adatta alla tua richiesta.</p>\n<p>Ci auguriamo che la tua esperienza su Post-It sia di tuo gradimento!</p>\n<p style="text-align:right;font-weight:800;color:#FFD34D;">—Il Founder Team 👑🌟</p>';
     const barra = el("div");
     barra.style.cssText = "flex:0 0 auto;display:flex;gap:10px;justify-content:center;padding:12px 16px calc(14px + env(safe-area-inset-bottom, 0px));background:#141210;";
+    if (rilettura) {
+      const ch = el("button", "ftGo", "Chiudi");
+      ch.style.cssText += "background:#FFD34D;color:#2A2620;padding:12px 26px;font-size:15px;";
+      ch.onclick = () => ov.remove();
+      barra.appendChild(ch);
+      ov.append(scroll, barra);
+      document.body.appendChild(ov);
+      return;
+    }
     const no = el("button", "ftDel", "Rifiuta");
     no.style.cssText += "padding:12px 22px;font-size:15px;";
     no.onclick = () => {
