@@ -654,7 +654,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f152";
+  const FT_VER = "f153";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -960,6 +960,8 @@
     document.querySelectorAll(".modal .atList:not([data-ftpow])").forEach((lista) => {
       lista.dataset.ftpow = "1";
       const modal = lista.closest(".modal"); if (!modal) return;
+      const giaNativi = [...modal.querySelectorAll("button")].some((bb) => /Caccia|Banna/.test(bb.textContent || ""));
+      if (giaNativi) return;
       const nomeB = (modal.querySelector("b, h2, h3") || {}).textContent || "";
       const bersaglio = nomeB.replace(RX_EMOJI_CODA, "").trim();
       if (!bersaglio) return;
