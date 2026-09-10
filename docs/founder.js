@@ -729,7 +729,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f155";
+  const FT_VER = "f156";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -898,7 +898,7 @@
         rev.onclick = async () => {
           if (!confirm("Revocare il ban e FLAGGARE l'utente (bandierina rossa + avviso di cautela)?")) return;
           const gi9 = (await giudizioDi(t.autore_pid)) || { pid: t.autore_pid };
-          await salvaGiudizio(Object.assign({}, gi9, { ban: null, flag: { at: Date.now(), da: mioNomeTeam() } }));
+          await salvaGiudizio(Object.assign({}, gi9, { nome: gi9.nome || t.autore_nome || "", ban: null, flag: { at: Date.now(), da: mioNomeTeam() } }));
           await chiudiTicket(t); await caricaGiudizi(); canale(tid, contesto);
         };
         az.append(rif, rev);
@@ -967,7 +967,7 @@
     ov.appendChild(n);
     document.body.appendChild(ov);
   }
-  let flaggati = new Set(), mioGiudizio = null;
+  let flaggati = new Set(), flaggatiNomi = new Set(), mioGiudizio = null;
   const DURATE = [["1 giorno", 864e5], ["1 settimana", 6048e5], ["1 mese", 2592e6], ["1 anno", 31536e6]];
   async function giudizioDi(pid) {
     const s2 = sb(); if (!s2 || !pid) return null;
@@ -983,6 +983,7 @@
       const r = await s2.from("giudizi").select("*");
       const rows = r.data || [];
       flaggati = new Set(rows.filter((x) => x.flag).map((x) => x.pid));
+      flaggatiNomi = new Set(rows.filter((x) => x.flag && x.nome).map((x) => x.nome));
       mioGiudizio = rows.find((x) => x.pid === myPid()) || null;
     } catch (e) {}
     muro();
@@ -1159,7 +1160,7 @@
     if (card.querySelector(".ftFlag")) return;
     const nome9 = hit ? hit[0] : ((card.querySelector(".uName") || {}).textContent || "").replace(RX_EMOJI_CODA, "").trim();
     const pid9 = pidDiNome(nome9);
-    if (!pid9 || !flaggati.has(pid9)) return;
+    if (!(pid9 && flaggati.has(pid9)) && !flaggatiNomi.has(nome9)) return;
     const fl = el("span", "ftFlag", "🚩");
     fl.style.cssText = "position:absolute;top:-9px;right:-6px;font-size:20px;z-index:7;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4));pointer-events:none;";
     if (getComputedStyle(card).position === "static") card.style.position = "relative";
@@ -1171,7 +1172,7 @@
       const modal = lista.closest(".modal"); if (!modal || modal.querySelector(".ftFlagAvviso")) return;
       const nome9 = ((modal.querySelector("b, h2, h3") || {}).textContent || "").replace(RX_EMOJI_CODA, "").trim();
       const pid9 = pidDiNome(nome9);
-      if (!pid9 || !flaggati.has(pid9)) return;
+      if (!(pid9 && flaggati.has(pid9)) && !flaggatiNomi.has(nome9)) return;
       const avv = el("p", "ftHint ftFlagAvviso", "🚩 Questo utente è stato flaggato dal Founder Team. Si prega di interagirvi con cautela e di segnalare qualsiasi suo comportamento inappropriato aprendo un ticket nella sezione «Conosci il Founder Team» con la dicitura «Segnala Utenti».");
       avv.style.cssText = "color:#C62838;font-weight:700;";
       lista.after(avv);
