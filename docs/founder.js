@@ -113,7 +113,7 @@
     .ftCoronaMem { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
     .ftCoronaMem i { position: absolute; font-style: normal; color: #FFD34D; text-shadow: 0 0 5px rgba(255,211,77,.95), 0 1px 2px rgba(42,38,32,.95); transform: translate(-50%, -50%); }
     .userCard.ftMemFounder, .userCard.ftMemFounder .hint { color: #FFD34D !important; }
-    .userCard.ftMemFT { padding-bottom: 6px !important; overflow: visible; }
+    .userCard.ftMemFT { padding-bottom: 26px !important; overflow: visible; }
     .userCard.ftMemFounder .uName, .userCard.ftMemFounder b { color: #FFD34D !important; }
     .ftPillCard { display: inline-block !important; background: rgba(42,38,32,.88) !important; color: #FFD34D !important; border-radius: 99px; padding: 1px 7px !important; font-size: 9px !important; font-weight: 800 !important; line-height: 1.15 !important; max-width: 94%; white-space: normal !important; opacity: 1 !important; position: relative; z-index: 4; }
     .ftPillCard.oro { background: #FFD34D !important; color: #2A2620 !important; }
@@ -633,7 +633,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f145";
+  const FT_VER = "f146";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
