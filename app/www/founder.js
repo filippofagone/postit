@@ -110,8 +110,8 @@
     .ftStelline { position: relative; overflow: visible !important; }
     .ftStelline::before { content: "✦"; position: absolute; top: -10px; left: -8px; font-size: 20px; color: #FFD34D; text-shadow: 0 0 4px rgba(255,211,77,.95); pointer-events: none; z-index: 3; }
     .ftStelline::after { content: "✦"; position: absolute; bottom: -8px; right: -6px; font-size: 11px; color: #FFD34D; text-shadow: 0 0 3px rgba(255,211,77,.95); pointer-events: none; z-index: 3; }
-    .ftCoronaMem { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
-    .ftCoronaMem i { position: absolute; font-style: normal; color: #FFD34D; text-shadow: 0 0 5px rgba(255,211,77,.95); transform: translate(-50%, -50%); }
+    .ftCoronaMem { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+    .ftCoronaMem i { position: absolute; font-style: normal; color: #FFD34D; text-shadow: 0 0 5px rgba(255,211,77,.95), 0 1px 2px rgba(42,38,32,.95); transform: translate(-50%, -50%); }
     .userCard.ftMemFounder, .userCard.ftMemFounder .hint { color: #FFD34D !important; }
     .userCard.ftMemFT { padding-bottom: 6px !important; overflow: visible; }
     .userCard.ftMemFounder .uName, .userCard.ftMemFounder b { color: #FFD34D !important; }
@@ -633,7 +633,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f143";
+  const FT_VER = "f144";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -934,7 +934,7 @@
       chip.style.background = "#2A2620"; chip.style.color = "#FFD34D";
     });
   }
-  const CORONA7 = [[5, 20], [3, 46], [12, 70], [50, 79], [88, 70], [97, 46], [95, 20]];
+  const CORONA7 = [[4, 30], [3, 58], [11, 87], [50, 96], [89, 87], [97, 58], [96, 30]];
   function decoraMembri() {
     const squadra = nomiSquadra(); if (!squadra.length) return;
     document.querySelectorAll(".userCard:not([data-ftd])").forEach((card) => {
