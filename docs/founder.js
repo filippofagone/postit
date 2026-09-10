@@ -250,6 +250,27 @@
     righe.push("📊 Andamento — gruppi: " + (await conta("groups")) + " · contenuti: " + (await conta("items")) + " · chat private: " + (await conta("dms")) + " · team: " + (await conta("team")));
     try { const w = await s.from("fondazione").upsert({ id: "diag-test", data: { t: Date.now() } }); righe.push("✍️ Scrittura: " + (w.error ? "ERRORE " + w.error.message : "ok ✔")); if (!w.error) await s.from("fondazione").delete().eq("id", "diag-test"); } catch (e) { righe.push("✍️ Scrittura: ERRORE " + e.message); }
     righe.push("👤 Il tuo pid: " + (myPid() || "—"));
+    const bb2 = el("button", "ftDel", "🧹 Bonifica cloud (il mio telefono è la verità)");
+    bb2.style.marginTop = "8px";
+    bb2.onclick = async () => {
+      if (!confirm("BONIFICA: per ogni tuo gruppo, il contenuto nel cloud (promemoria, idee, chat, annunci, ticket) verrà cancellato e riscritto ESATTAMENTE come sta su questo telefono. Le righe zombie moriranno per tutti. Procedere?")) return;
+      const st2 = JSON.parse(localStorage.getItem("postit:v4") || "{}");
+      const SLK = [["prom", "promemoria"], ["idea", "idee"], ["chat", "chat"], ["ann", "annunci"], ["ticket", "tickets"]];
+      let tot = 0;
+      for (const g of (st2.groups || []).filter((x) => x.joined && !x.local)) {
+        const del = await s.from("items").delete().eq("group_id", g.id);
+        if (del && del.error) { alert("⚠️ " + g.name + ": " + del.error.message); continue; }
+        const righe2 = [];
+        for (const [kind, campo] of SLK) for (const it of g[campo] || []) righe2.push({ id: String(it.id), group_id: g.id, kind, payload: it });
+        for (let i2 = 0; i2 < righe2.length; i2 += 100) {
+          const up = await s.from("items").upsert(righe2.slice(i2, i2 + 100));
+          if (up && up.error) { alert("⚠️ " + g.name + ": " + up.error.message); break; }
+        }
+        tot += righe2.length;
+      }
+      alert("🧹 Bonifica completata: " + tot + " contenuti sani riscritti nel cloud. Di' alla squadra di riaprire l'app.");
+    };
+    box.appendChild(bb2);
     box.innerHTML = ""; righe.forEach((r) => box.appendChild(el("p", null, r)));
   }
 
@@ -633,7 +654,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f147";
+  const FT_VER = "f148";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
