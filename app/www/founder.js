@@ -502,6 +502,15 @@
         };
         const bFlag = el("button", "ftGo", gi.flag ? "🏳 Togli flag" : "🚩 Flag");
         bFlag.onclick = async () => await salvaEd({ flag: gi.flag ? null : { at: Date.now(), da: chi } }, gi.flag ? "🏳 Flag rimosso." : "🚩 Utente flaggato.");
+        if ((gi.strikes || []).length) {
+          const bMeno = el("button", "ftGo", "➖ Rimuovi strike");
+          bMeno.onclick = async () => {
+            const ultimo = gi.strikes[gi.strikes.length - 1];
+            if (!confirm("Rimuovere l'ultimo strike?\n«" + ultimo.motivo + "» — " + new Date(ultimo.at).toLocaleDateString("it-IT"))) return;
+            await salvaEd({ strikes: gi.strikes.slice(0, -1) }, "➖ Strike rimosso (" + (gi.strikes.length - 1) + "/3).");
+          };
+          az.appendChild(bMeno);
+        }
         az.append(bStrike, bBan, bFlag);
         if (!nome && !gi.nome) {
           const bNome = el("button", "ftGo", "✏️ Associa nome");
@@ -739,7 +748,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f157";
+  const FT_VER = "f158";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -1207,6 +1216,12 @@
       mo9.dataset.ftcod = "1";
       const riga = el("p", "ftHint", "🆔 Il tuo codice: " + (myPid() || "—") + " (per i report e il supporto)");
       riga.style.cssText = "text-align:center;user-select:all;";
+      const nStr = ((mioGiudizio || {}).strikes || []).length;
+      if (nStr) {
+        const rs = el("p", "ftHint", "⚡ I tuoi strike: " + nStr + "/3" + (nStr >= 2 ? " — al 3° scatta il ban!" : ""));
+        rs.style.cssText = "text-align:center;font-weight:800;color:#B26A00;";
+        riga.after(rs);
+      }
       const anc = mo9.querySelector(".profTop");
       if (anc) anc.after(riga); else mo9.appendChild(riga);
     });
