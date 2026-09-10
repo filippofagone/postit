@@ -462,7 +462,9 @@
         const az = el("div"); az.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;";
         const chi = mioNomeTeam();
         const salvaEd = async (patch, msg) => {
-          const r3 = await salvaGiudizio(Object.assign({}, gi, { pid: codice, nome: nome || gi.nome || "" }, patch));
+          let nome8 = nome || gi.nome || "";
+          if (!nome8) { nome8 = (prompt("Nome esatto dell'utente (come appare nei gruppi):") || "").trim(); }
+          const r3 = await salvaGiudizio(Object.assign({}, gi, { pid: codice, nome: nome8 }, patch));
           if (r3 && r3.error) alert("⚠️ " + r3.error.message + "\n(Se parla di tabella mancante, esegui postit-supabase-v11-usercontrol.sql)");
           else { alert(msg); await caricaGiudizi(); ub.onclick(); }
         };
@@ -501,6 +503,14 @@
         const bFlag = el("button", "ftGo", gi.flag ? "🏳 Togli flag" : "🚩 Flag");
         bFlag.onclick = async () => await salvaEd({ flag: gi.flag ? null : { at: Date.now(), da: chi } }, gi.flag ? "🏳 Flag rimosso." : "🚩 Utente flaggato.");
         az.append(bStrike, bBan, bFlag);
+        if (!nome && !gi.nome) {
+          const bNome = el("button", "ftGo", "✏️ Associa nome");
+          bNome.onclick = async () => {
+            const n8 = (prompt("Nome esatto dell'utente (come appare nei gruppi):") || "").trim();
+            if (n8) await salvaEd({}, "✏️ Nome associato: " + n8);
+          };
+          az.appendChild(bNome);
+        }
         if (banAttivo(gi)) {
           const bRev = el("button", "ftGo", "🕊 Revoca Ban");
           bRev.onclick = async () => { if (confirm("Revocare il ban di " + (nome || codice) + "?")) await salvaEd({ ban: null }, "🕊 Ban revocato."); };
@@ -729,7 +739,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f156";
+  const FT_VER = "f157";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -967,7 +977,7 @@
     ov.appendChild(n);
     document.body.appendChild(ov);
   }
-  let flaggati = new Set(), flaggatiNomi = new Set(), mioGiudizio = null;
+  let flaggati = new Set(), flaggatiNomi = new Set(), giudiziRows = [], mioGiudizio = null;
   const DURATE = [["1 giorno", 864e5], ["1 settimana", 6048e5], ["1 mese", 2592e6], ["1 anno", 31536e6]];
   async function giudizioDi(pid) {
     const s2 = sb(); if (!s2 || !pid) return null;
@@ -982,6 +992,7 @@
     try {
       const r = await s2.from("giudizi").select("*");
       const rows = r.data || [];
+      giudiziRows = rows;
       flaggati = new Set(rows.filter((x) => x.flag).map((x) => x.pid));
       flaggatiNomi = new Set(rows.filter((x) => x.flag && x.nome).map((x) => x.nome));
       mioGiudizio = rows.find((x) => x.pid === myPid()) || null;
@@ -1156,11 +1167,15 @@
     } catch (e) {}
     return null;
   }
+  function giudizioPerNome(nome9) {
+    const pid9 = pidDiNome(nome9);
+    return giudiziRows.find((x) => (pid9 && x.pid === pid9) || (x.nome && x.nome === nome9)) || null;
+  }
   function decoraFlag(card, hit) {
     if (card.querySelector(".ftFlag")) return;
     const nome9 = hit ? hit[0] : ((card.querySelector(".uName") || {}).textContent || "").replace(RX_EMOJI_CODA, "").trim();
-    const pid9 = pidDiNome(nome9);
-    if (!(pid9 && flaggati.has(pid9)) && !flaggatiNomi.has(nome9)) return;
+    const gi9 = giudizioPerNome(nome9);
+    if (!gi9 || !gi9.flag) return;
     const fl = el("span", "ftFlag", "🚩");
     fl.style.cssText = "position:absolute;top:-9px;right:-6px;font-size:20px;z-index:7;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4));pointer-events:none;";
     if (getComputedStyle(card).position === "static") card.style.position = "relative";
@@ -1169,13 +1184,22 @@
   function decoraFlagTutti() {
     document.querySelectorAll(".userCard").forEach((card) => decoraFlag(card, null));
     document.querySelectorAll(".modal .atList").forEach((lista) => {
-      const modal = lista.closest(".modal"); if (!modal || modal.querySelector(".ftFlagAvviso")) return;
+      const modal = lista.closest(".modal"); if (!modal || modal.querySelector(".ftGiudizio")) return;
       const nome9 = ((modal.querySelector("b, h2, h3") || {}).textContent || "").replace(RX_EMOJI_CODA, "").trim();
-      const pid9 = pidDiNome(nome9);
-      if (!(pid9 && flaggati.has(pid9)) && !flaggatiNomi.has(nome9)) return;
-      const avv = el("p", "ftHint ftFlagAvviso", "🚩 Questo utente è stato flaggato dal Founder Team. Si prega di interagirvi con cautela e di segnalare qualsiasi suo comportamento inappropriato aprendo un ticket nella sezione «Conosci il Founder Team» con la dicitura «Segnala Utenti».");
-      avv.style.cssText = "color:#C62838;font-weight:700;";
-      lista.after(avv);
+      const gi9 = giudizioPerNome(nome9);
+      if (!gi9 || (!(gi9.strikes || []).length && !gi9.flag)) return;
+      const box9 = el("div", "ftGiudizio");
+      if ((gi9.strikes || []).length) {
+        const st9 = el("p", "ftHint", "⚡ Strike: " + gi9.strikes.length + "/3");
+        st9.style.cssText = "font-weight:800;color:#B26A00;";
+        box9.appendChild(st9);
+      }
+      if (gi9.flag) {
+        const avv = el("p", "ftHint ftFlagAvviso", "🚩 Questo utente è stato flaggato dal Founder Team. Si prega di interagirvi con cautela e di segnalare qualsiasi suo comportamento inappropriato aprendo un ticket nella sezione «Conosci il Founder Team» con la dicitura «Segnala Utenti».");
+        avv.style.cssText = "color:#C62838;font-weight:700;";
+        box9.appendChild(avv);
+      }
+      lista.after(box9);
     });
   }
   function mostraCodici() {
