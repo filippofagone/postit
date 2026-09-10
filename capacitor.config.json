@@ -1,0 +1,12 @@
+{
+  "appId": "dev.filippofagone.postit",
+  "appName": "Post-It",
+  "webDir": "docs",
+  "server": {
+    "url": "https://filippofagone.github.io/postit/",
+    "cleartext": false
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

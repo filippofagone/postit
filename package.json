@@ -1,0 +1,13 @@
+{
+  "name": "post-it",
+  "version": "13.0.0",
+  "private": true,
+  "description": "Post-It — gruppi di lavoro a post-it",
+  "dependencies": {
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/ios": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
