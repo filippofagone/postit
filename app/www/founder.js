@@ -654,7 +654,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f153";
+  const FT_VER = "f154";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -957,21 +957,23 @@
       chip.style.background = "#2A2620"; chip.style.color = "#FFD34D";
     });
     if (!(sonoFounder() || mioMembro())) return;
-    document.querySelectorAll(".modal .atList:not([data-ftpow])").forEach((lista) => {
+    document.querySelectorAll(".modal .atList").forEach((lista) => {
+      delete lista.dataset.ftpow;
       lista.dataset.ftpow = "1";
       const modal = lista.closest(".modal"); if (!modal) return;
-      const giaNativi = [...modal.querySelectorAll("button")].some((bb) => /Caccia|Banna/.test(bb.textContent || ""));
-      if (giaNativi) return;
+      const giaNativi = [...modal.querySelectorAll("button")].some((bb) => !bb.closest(".ftPowWrap") && /Caccia|Banna/.test(bb.textContent || ""));
+      if (giaNativi) { modal.querySelectorAll(".ftPowWrap").forEach((w9) => w9.remove()); return; }
       const nomeB = (modal.querySelector("b, h2, h3") || {}).textContent || "";
       const bersaglio = nomeB.replace(RX_EMOJI_CODA, "").trim();
       if (!bersaglio) return;
       const st3 = (() => { try { return JSON.parse(localStorage.getItem("postit:v4") || "{}"); } catch (e) { return {}; } })();
       const mioPid = (st3.profile || {}).id;
       const cand = (st3.groups || []).filter((gg) => gg.joined && (gg.users || []).some((uu) => uu.name === bersaglio && !uu.left && uu.pid !== mioPid));
+      if (modal.querySelector(".ftPowWrap")) return;
       if (cand.length !== 1) return;
       const gr = cand[0];
       const vittima = (gr.users || []).find((uu) => uu.name === bersaglio);
-      const wrap = el("div");
+      const wrap = el("div", "ftPowWrap");
       wrap.style.cssText = "display:flex;gap:6px;margin-top:8px;";
       const fai = async (ban) => {
         if (!confirm((ban ? "BANNARE per sempre " : "Espellere ") + bersaglio + " dal gruppo «" + gr.name + "» in nome del Founder Team?")) return;
