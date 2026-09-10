@@ -654,7 +654,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f151";
+  const FT_VER = "f152";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -955,6 +955,38 @@
       const [, ruolo, isF] = hit;
       chip.textContent = (isF ? "👑 " : "✨ ") + ruolo;
       chip.style.background = "#2A2620"; chip.style.color = "#FFD34D";
+    });
+    if (!(sonoFounder() || mioMembro())) return;
+    document.querySelectorAll(".modal .atList:not([data-ftpow])").forEach((lista) => {
+      lista.dataset.ftpow = "1";
+      const modal = lista.closest(".modal"); if (!modal) return;
+      const nomeB = (modal.querySelector("b, h2, h3") || {}).textContent || "";
+      const bersaglio = nomeB.replace(RX_EMOJI_CODA, "").trim();
+      if (!bersaglio) return;
+      const st3 = (() => { try { return JSON.parse(localStorage.getItem("postit:v4") || "{}"); } catch (e) { return {}; } })();
+      const mioPid = (st3.profile || {}).id;
+      const cand = (st3.groups || []).filter((gg) => gg.joined && (gg.users || []).some((uu) => uu.name === bersaglio && !uu.left && uu.pid !== mioPid));
+      if (cand.length !== 1) return;
+      const gr = cand[0];
+      const vittima = (gr.users || []).find((uu) => uu.name === bersaglio);
+      const wrap = el("div");
+      wrap.style.cssText = "display:flex;gap:6px;margin-top:8px;";
+      const fai = async (ban) => {
+        if (!confirm((ban ? "BANNARE per sempre " : "Espellere ") + bersaglio + " dal gruppo «" + gr.name + "» in nome del Founder Team?")) return;
+        const s2 = sb(); if (!s2) return;
+        const r = await s2.from("groups").select("*").eq("id", gr.id).maybeSingle();
+        if (!r || r.error || !r.data) { alert("⚠️ gruppo non raggiungibile"); return; }
+        const dd = Object.assign({}, r.data.data || {});
+        dd.users = (dd.users || []).map((uu) => uu.name === bersaglio ? Object.assign({}, uu, ban ? { left: true, banned: true } : { left: true }) : uu);
+        if (ban && vittima && vittima.pid) dd.banned = [...new Set([...(dd.banned || []), vittima.pid])];
+        const up = await s2.from("groups").upsert({ id: gr.id, data: dd });
+        if (up && up.error) { alert("⚠️ " + up.error.message); return; }
+        alert((ban ? "🚫 Bannato" : "👋 Espulso") + " in nome del Founder Team. Effetto al prossimo giro di sincronizzazione.");
+      };
+      const e1 = el("button", "ftDel", "👋 Espelli (FT)"); e1.onclick = () => fai(false);
+      const e2 = el("button", "ftDel", "🚫 Banna (FT)"); e2.onclick = () => fai(true);
+      wrap.append(e1, e2);
+      lista.after(wrap);
     });
   }
   const CORONA7 = [[4, 34], [3, 62], [10, 91], [50, 99], [90, 91], [97, 62], [96, 34]];
