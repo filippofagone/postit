@@ -3,7 +3,7 @@
   "appName": "Post-It",
   "webDir": "www",
   "server": {
-    "url": "https://filippofagone.github.io/postit/",
+    "url": "https://post-it-official.github.io/postit/",
     "cleartext": false
   },
   "android": {
