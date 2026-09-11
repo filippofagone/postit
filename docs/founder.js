@@ -1,6 +1,6 @@
 /* ═══ POST-IT · MODULO FOUNDER (pezzo 1) ═══ */
 (function () {
-  const RUOLI = ["Founder Team Member", "Alpha Tester", "Beta-Tester", "Bug Finder", "Customer Support", "Head of User Support", "App Security", "Head of App Security", "Designer", "Lead Designer", "Counselor", "Head Counselor", "Announcer", "Head of Announcements"];
+  const RUOLI = ["Founder Team Member", "Alpha Tester", "Beta-Tester", "Bug Finder", "User Support", "Head of User Support", "App Security", "Head of App Security", "Designer", "Lead Designer", "Counselor", "Head Counselor", "Announcer", "Head of Announcements"];
   const PERMESSI = [["diag", "Diagnosi Database"], ["bug", "Bug Finder"], ["review", "App Review"], ["ann", "Fai un annuncio"]];
   const PALETTE = ["#FFF176", "#FFD54F", "#FFCC80", "#FFAB91", "#FF8A80", "#F8BBD0", "#F48FB1", "#CE93D8", "#B39DDB", "#9FA8DA", "#90CAF9", "#81D4FA", "#80DEEA", "#80CBC4", "#A5D6A7", "#C5E1A5", "#E6EE9C", "#BCAAA4", "#E0E0E0", "#FFD34D"];
   const sb = () => window.__sb || null;
@@ -138,7 +138,7 @@
       const c = await s.from("fondazione").select("*").eq("id", "cfg").maybeSingle();
       cfg = c.data || null;
       const t = await s.from("team").select("*");
-      const fix = (r) => (r === "Head of Customer Support" ? "Head of User Support" : r);
+      const fix = (r) => (r === "Head of User Support" ? "Head of User Support" : r);
       team = (t.data || []).map((m) => Object.assign({}, m, { ruolo: fix(m.ruolo || ""), ruoli: (m.ruoli || []).map(fix) })).sort((a, b) => (a.nome > b.nome ? 1 : -1));
     } catch (e) {}
     try { if (typeof avvisoFtk === "function") avvisoFtk(); } catch (e) {}
@@ -755,9 +755,9 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f163";
+  const FT_VER = "f164";
   const ROTTE = {
-    "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
+    "Segnala problema": ["FOUNDER", "Head of User Support", "User Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
     "Segnala Utenti": ["FOUNDER", "Head of App Security", "App Security"],
     "Idee per l'app": ["FOUNDER", "ALL"],
