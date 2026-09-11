@@ -755,7 +755,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f173";
+  const FT_VER = "f174";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "User Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -801,7 +801,8 @@
   }
   async function nuovoTicket(tipo, testo) {
     const s = sb(); if (!s || !testo.trim()) return;
-    const nome = sonoFounder() ? (((cfg || {}).data || {}).founderName || "Founder") : (mioMembro() || {}).nome || "Utente";
+    const profNome = (() => { try { return (JSON.parse(localStorage.getItem("postit:v4") || "{}").profile || {}).name || ""; } catch (e) { return ""; } })();
+    const nome = sonoFounder() ? (((cfg || {}).data || {}).founderName || "Founder") : (mioMembro() || {}).nome || profNome || "Utente";
     await s.from("ftickets").insert({ id: "ftk-" + Date.now().toString(36), tipo, testo: testo.trim(), autore_pid: myPid() || null, autore_nome: nome, at: new Date().toISOString(), msgs: [], closed: false });
     await caricaFtk();
   }
@@ -1046,7 +1047,7 @@
         const testo = prompt("Scrivi il tuo appello al Founder Team:");
         if (!testo || !testo.trim()) return;
         const s2 = sb(); if (!s2) return;
-        const r2 = await s2.from("ftickets").insert({ id: "ftk-" + Date.now().toString(36), tipo: "Ban appeal", testo: testo.trim(), autore_pid: myPid() || null, autore_nome: (mioGiudizio || {}).nome || "Utente bannato", at: new Date().toISOString(), msgs: [], closed: false });
+        const r2 = await s2.from("ftickets").insert({ id: "ftk-" + Date.now().toString(36), tipo: "Ban appeal", testo: testo.trim(), autore_pid: myPid() || null, autore_nome: (mioGiudizio || {}).nome || (() => { try { return (JSON.parse(localStorage.getItem("postit:v4") || "{}").profile || {}).name || ""; } catch (e) { return ""; } })() || "Utente bannato", at: new Date().toISOString(), msgs: [], closed: false });
         alert(r2 && r2.error ? "⚠️ " + r2.error.message : "🎫 Appello inviato al Founder Team. Riapri l'app più tardi per la risposta.");
       };
       riga.append(esci, tk); box.appendChild(riga);
