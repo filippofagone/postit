@@ -755,7 +755,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f166";
+  const FT_VER = "f167";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "User Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -1203,7 +1203,7 @@
         const dd = Object.assign({}, r.data.data || {});
         dd.users = (dd.users || []).map((uu) => uu.name === bersaglio ? Object.assign({}, uu, ban ? { left: true, banned: true } : { left: true }) : uu);
         if (ban && vittima && vittima.pid) dd.banned = [...new Set([...(dd.banned || []), vittima.pid])];
-        const up = await s2.from("groups").upsert({ id: gr.id, data: dd });
+        const up = await s2.from("groups").upsert(Object.assign({}, r.data, { data: dd }));
         if (up && up.error) { alert("⚠️ " + up.error.message); return; }
         alert((ban ? "🚫 Bannato" : "👋 Espulso") + " in nome del Founder Team. Effetto al prossimo giro di sincronizzazione.");
       };
