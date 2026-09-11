@@ -701,7 +701,10 @@
   function barra() {
     const vecchia = document.getElementById("ftBar"); if (vecchia) vecchia.remove();
     const c = chiusi();
-    const att = annunci.find((a) => !c.includes(a.id));
+    const CUT_KEY = "postit:annCut";
+    let cut = parseInt(localStorage.getItem(CUT_KEY) || "0", 10);
+    if (!cut) { cut = Date.now(); localStorage.setItem(CUT_KEY, String(cut)); }
+    const att = annunci.find((a) => !c.includes(a.id) && new Date(a.at).getTime() > cut);
     if (!att) return;
     const b = el("button", "ftBar"); b.id = "ftBar";
     b.style.background = att.colore || "#FFF176";
@@ -752,7 +755,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f162";
+  const FT_VER = "f163";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "Customer Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
