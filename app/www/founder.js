@@ -755,7 +755,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f178";
+  const FT_VER = "f179";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "User Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -1092,6 +1092,39 @@
     ov.append(scroll, barra);
     document.body.appendChild(ov);
   }
+  async function registraProfilo() {
+    const s2 = sb(); if (!s2) return;
+    try {
+      const st8 = JSON.parse(localStorage.getItem("postit:v4") || "{}");
+      const p8 = st8.profile || {};
+      if (p8.id && p8.name) await s2.from("profili").upsert({ pid: p8.id, name: p8.name, emoji: p8.emoji || "" });
+    } catch (e) {}
+  }
+  function tastoAccedi() {
+    const go = document.getElementById("tourGo");
+    if (!go || go.dataset.ftacc) return;
+    go.dataset.ftacc = "1";
+    const acc = el("button", "pillBtn ghost", "🔑 Accedi con un codice profilo");
+    acc.style.cssText = "margin-top:10px;width:100%;";
+    acc.onclick = async () => {
+      const codice = (prompt("Inserisci il codice del profilo (🆔) a cui vuoi accedere:") || "").trim();
+      if (!codice) return;
+      const s2 = sb(); if (!s2) { alert("⚠️ Cloud non raggiungibile."); return; }
+      const r = await s2.from("profili").select("*").eq("pid", codice).maybeSingle();
+      if (!r || r.error || !r.data || !r.data.name) { alert("⚠️ Nessun profilo trovato con questo codice."); return; }
+      if (!confirm("Accedere come " + (r.data.emoji || "👤") + " " + r.data.name + "?\n\nQuesto dispositivo userà quel profilo (niente doppioni).")) return;
+      let st8 = {}; try { st8 = JSON.parse(localStorage.getItem("postit:v4") || "{}"); } catch (e) {}
+      st8.profile = { id: r.data.pid, name: r.data.name, emoji: r.data.emoji || "🙂" };
+      st8.groups = st8.groups || [];
+      localStorage.setItem("postit:v4", JSON.stringify(st8));
+      localStorage.setItem("postit:regoleOk", String(Date.now()));
+      alert("✅ Bentornato, " + r.data.name + "! L'app si riavvia col tuo profilo. Rientra nei tuoi gruppi coi loro codici: i tuoi personaggi ti riconosceranno.");
+      location.reload();
+    };
+    go.parentElement && go.parentElement.appendChild(acc);
+  }
+  registraProfilo();
+  setInterval(registraProfilo, 120000);
   caricaGiudizi();
   setInterval(caricaGiudizi, 45000);
   caricaAnnunci();
@@ -1318,7 +1351,8 @@
     });
   }
   const agganci = () => {
-    aggancioHome(); aggancioProfilo(); decoraChat(); decoraMembri(); decoraScheda(); riaffermaEtichette(); decoraFlagTutti(); mostraCodici(); regole(); autoVesti();
+    window.__ftGod = !!(sonoFounder() || mioMembro());
+    tastoAccedi(); aggancioHome(); aggancioProfilo(); decoraChat(); decoraMembri(); decoraScheda(); riaffermaEtichette(); decoraFlagTutti(); mostraCodici(); regole(); autoVesti();
     try {
       document.body.classList.toggle("ftSkin", sonoFounder());
       document.body.classList.toggle("ftTeamRing", !sonoFounder() && !!mioMembro());
