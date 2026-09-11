@@ -116,8 +116,10 @@ ${v}`}var me=class extends Error{constructor({message:t,code:n,cause:r,name:i}){
       .userCard:hover { transform: rotate(0deg) scale(1.06) !important; box-shadow: 0 16px 26px -10px rgba(40,40,70,.5); }
       .uEmoji { font-size: 34px; }
       .uName { font-family: 'Caveat', cursive; font-size: 26px; font-weight: 600; }
-      .uRole { font-size: 10px; opacity: .65; max-width: 94%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; margin: 0 auto; }
-      .userCard .uName { max-width: 94%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; margin: 0 auto; }
+      .userCard { height: auto; min-height: 128px; padding: 10px 6px; }
+      .userCard .uName { font-size: 23px; line-height: 1.05; max-width: 96%; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-align: center; margin: 0 auto; word-break: break-word; }
+      .userCard .uRole { font-size: 9.5px; line-height: 1.2; max-width: 96%; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-align: center; margin: 0 auto; word-break: break-word; }
+      .uRole { font-size: 10px; opacity: .65; }
 
       /* \u2500\u2500\u2500\u2500\u2500 header \u2500\u2500\u2500\u2500\u2500 */
       .hdr {
@@ -1199,6 +1201,6 @@ react-dom/cjs/react-dom.production.min.js:
 */
 
 </script>
-<script src="founder.js?v=169"></script>
+<script src="founder.js?v=170"></script>
 </body>
 </html>
