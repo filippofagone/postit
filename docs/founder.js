@@ -755,7 +755,7 @@
     await caricaAnnunci();
   }
   /* ═══ FOUNDER TEAM SUPPORT ═══ */
-  const FT_VER = "f168";
+  const FT_VER = "f169";
   const ROTTE = {
     "Segnala problema": ["FOUNDER", "Head of User Support", "User Support"],
     "Segnala Staff": ["FOUNDER", "Head of App Security", "App Security"],
@@ -1155,6 +1155,7 @@
     });
     document.querySelectorAll(".modal .atList .chip.on").forEach((chip) => {
       const modal = chip.closest(".modal"); if (!modal) return;
+      if (modal.querySelector(".permBox, .roleRow, .roleName")) return;
       const testo = (modal.textContent || "");
       const hit = squadra.find(([n]) => n && testo.indexOf(n) >= 0);
       if (!hit) return;
